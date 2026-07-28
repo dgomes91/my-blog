@@ -1,11 +1,29 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Mulish, JetBrains_Mono, Oswald } from 'next/font/google';
+import { Theme } from "@radix-ui/themes";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// 1. Configure Mulish (General Sans-Serif Text)
+const mulish = Mulish({
   subsets: ["latin"],
+  variable: "--font-mulish",
+  display: "swap",
 });
+
+// 2. Configure Oswald (Display/Headings)
+const oswald = Oswald({
+  subsets: ["latin"],
+  variable: "--font-oswald",
+  display: "swap",
+});
+
+// 3. Configure JetBrains Mono (Code blocks)
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 
 export const metadata: Metadata = {
   title: "My Blog",
@@ -20,9 +38,11 @@ export default function RootLayout({
   return (
     <html
       lang="pt-br"
-      className={`${geistSans.variable}`}
+       className={`${mulish.variable} ${oswald.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="">{children}</body>
+      <body className="min-h-screen bg-background text-foreground font-sans antialiased">
+        <Theme>{children}</Theme>
+        </body>
     </html>
   );
 }
