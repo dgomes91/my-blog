@@ -173,7 +173,7 @@ export default function Home() {
                 ))}
               </div>
               <Link
-                to="/listas-top"
+                href="/listas-top"
                 className="mt-4 flex items-center justify-center gap-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary py-3 text-sm font-bold tracking-wide transition-colors w-full"
                 style={{ fontFamily: "'Oswald', sans-serif" }}
               >

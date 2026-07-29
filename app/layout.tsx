@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Mulish, JetBrains_Mono, Oswald } from 'next/font/google';
-import { Theme } from "@radix-ui/themes";
-import "./globals.css";
+import "./styles/index.css";
+import { Footer, Header } from "./components";
 
 // 1. Configure Mulish (General Sans-Serif Text)
 const mulish = Mulish({
@@ -41,7 +41,9 @@ export default function RootLayout({
        className={`${mulish.variable} ${oswald.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
-        <Theme>{children}</Theme>
+        <Header />
+        {children}
+        <Footer />
         </body>
     </html>
   );

@@ -1,0 +1,8 @@
+/* 1. Inicializa o motor principal desativando o scan padrão */
+@import 'tailwindcss' source(none);
+
+/* 2. Importa o plugin de animações compatível com a v4 */
+/* @import "tw-animate-css"; */
+
+/* 3. Escaneia seus arquivos locais de componentes */
+@source '../**/*.{js,ts,jsx,tsx}';

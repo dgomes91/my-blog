@@ -3,7 +3,7 @@ export type Article = {
   title: string;
   excerpt: string;
   coverImageUrl: string;
-  category: "noticias" | "reviews" | "listas-top";
+  category: "noticias" | "reviews" | "top-lista";
   gameSlug: string;
   author: string;
   breaking: boolean;

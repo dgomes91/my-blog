@@ -1,9 +1,8 @@
-
+'use client'
 import { useState } from "react";
-//import { Link, useLocation } from "react-router";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
-import { Search, Menu, X, ChevronRight, Star, Clock, Eye, MessageSquare, TrendingUp, Bookmark } from "lucide-react";
+import { Search, Menu, X, ChevronRight, Clock, Eye, MessageSquare, TrendingUp } from "lucide-react";
 import type { Article } from "./data";
 import { TRENDING } from "./data";
 
@@ -11,7 +10,7 @@ import { TRENDING } from "./data";
 const NAV_CATEGORIES = [
   { label: "Notícias", path: "/noticias" },
   { label: "Reviews", path: "/reviews" },
-  { label: "Listas TOP", path: "/listas-top" },
+  { label: "Listas TOP", path: "/top-lista" },
 ];
 
 // ─── Typography helpers ────────────────────────────────────────────────────
@@ -346,22 +345,31 @@ export function AdPlaceholder({ className = "" }: { className?: string }) {
 // ─── Header ────────────────────────────────────────────────────────────────
 
 export function Header() {
-  const location = usePathname();
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const hoje = new Date();
+  // Configura o formato com dia da semana longo e data longa
+  const opcoes = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+  };
+  // Formata a data e isola o resultado
+  let dataFormatada = hoje.toLocaleDateString('pt-BR', opcoes);
+  // Capitaliza a primeira letra do dia da semana (ex: "terça-feira" vira "Terça-feira")
+  dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="bg-[#0a0a0d] border-b border-border px-4 md:px-8 py-1.5 flex items-center justify-between text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        <span>Sábado, 26 de Julho de 2026</span>
-        <div className="flex items-center gap-4">
-          <a href="#" className="hover:text-foreground transition-colors">Login</a>
-          <a href="#" className="hover:text-foreground transition-colors">Cadastro</a>
-        </div>
+        <span id='data-atual'>{dataFormatada}</span>
       </div>
 
       <div className="px-4 md:px-8 h-14 flex items-center gap-6">
-        <Link to="/" className="shrink-0">
+        <Link href="/" className="shrink-0">
           <div className="flex items-center gap-0.5" style={{ fontFamily: "'Oswald', sans-serif" }}>
             <span className="text-2xl font-bold text-white tracking-tight">DANILO</span>
             <span className="text-2xl font-bold text-primary tracking-tight">GOMES</span>
@@ -370,7 +378,7 @@ export function Header() {
 
         <nav className="hidden md:flex items-center gap-1 flex-1">
           {NAV_CATEGORIES.map((cat) => {
-            const active = location.pathname.startsWith(cat.path);
+            const active = pathname.startsWith(cat.path);
             return (
               <Link
                 key={cat.path}
@@ -424,7 +432,7 @@ export function Header() {
               href={cat.path}
               onClick={() => setMenuOpen(false)}
               className={`text-sm font-bold px-2 py-2 tracking-wider transition-colors ${
-                location.pathname.startsWith(cat.path) ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                pathname.startsWith(cat.path) ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
               style={{ fontFamily: "'Oswald', sans-serif" }}
             >
@@ -450,7 +458,7 @@ export function Footer() {
               <span className="text-xl font-bold text-primary">GOMES</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              O portal brasileiro de referência em jogos de estratégia e simulação.
+              O lugar para fãs de jogos de estratégia, simulação e pc gaming.
             </p>
           </div>
           {[
@@ -459,7 +467,7 @@ export function Footer() {
               links: [
                 { label: "Notícias", path: "/noticias" },
                 { label: "Reviews", path: "/reviews" },
-                { label: "Listas TOP", path: "/listas-top" },
+                { label: "Listas TOP", path: "/top-listas" },
               ],
             },
             {
