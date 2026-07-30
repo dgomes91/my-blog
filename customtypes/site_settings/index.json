@@ -1,0 +1,225 @@
+{
+  "id": "site_settings",
+  "label": "Site Settings",
+  "repeatable": false,
+  "status": true,
+  "format": "custom",
+  "json": {
+    "Main": {
+      "site_name": {
+        "type": "Text",
+        "config": {
+          "label": "Site Name"
+        }
+      },
+      "tagline": {
+        "type": "Text",
+        "config": {
+          "label": "Tagline"
+        }
+      },
+      "logo": {
+        "type": "Image",
+        "config": {
+          "label": "Logo"
+        }
+      },
+      "favicon": {
+        "type": "Image",
+        "config": {
+          "label": "Favicon"
+        }
+      },
+      "seo_default_title": {
+        "type": "Text",
+        "config": {
+          "label": "Seo Default Title"
+        }
+      },
+      "seo_default_description": {
+        "type": "Text",
+        "config": {
+          "label": "Seo Default Description"
+        }
+      },
+      "seo_default_image": {
+        "type": "Image",
+        "config": {
+          "label": "Seo Default Image"
+        }
+      },
+      "primary_nav": {
+        "type": "Group",
+        "config": {
+          "label": "Primary Nav",
+          "fields": {
+            "label": {
+              "type": "Text",
+              "config": {
+                "label": "Label"
+              }
+            },
+            "link": {
+              "type": "Link",
+              "config": {
+                "label": "Link"
+              }
+            }
+          }
+        }
+      },
+      "footer_nav": {
+        "type": "Group",
+        "config": {
+          "label": "Footer Nav",
+          "fields": {
+            "label": {
+              "type": "Text",
+              "config": {
+                "label": "Label"
+              }
+            },
+            "link": {
+              "type": "Link",
+              "config": {
+                "label": "Link"
+              }
+            },
+            "column": {
+              "type": "Select",
+              "config": {
+                "label": "Column",
+                "options": [
+                  "Institucional",
+                  "Conteúdo",
+                  "Jogos",
+                  "Legal"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "social_links": {
+        "type": "Group",
+        "config": {
+          "label": "Social Links",
+          "fields": {
+            "platform": {
+              "type": "Select",
+              "config": {
+                "label": "Platform",
+                "options": [
+                  "X (Twitter)",
+                  "Instagram",
+                  "YouTube",
+                  "Twitch",
+                  "Discord",
+                  "RSS"
+                ]
+              }
+            },
+            "url": {
+              "type": "Link",
+              "config": {
+                "label": "Url"
+              }
+            }
+          }
+        }
+      },
+      "newsletter_heading": {
+        "type": "Text",
+        "config": {
+          "label": "Newsletter Heading"
+        }
+      },
+      "newsletter_subtext": {
+        "type": "Text",
+        "config": {
+          "label": "Newsletter Subtext"
+        }
+      },
+      "newsletter_button_label": {
+        "type": "Text",
+        "config": {
+          "label": "Newsletter Button Label"
+        }
+      },
+      "trending_topics": {
+        "type": "Group",
+        "config": {
+          "label": "Trending Topics",
+          "fields": {
+            "title": {
+              "type": "Text",
+              "config": {
+                "label": "Title"
+              }
+            },
+            "link": {
+              "type": "Link",
+              "config": {
+                "label": "Link"
+              }
+            },
+            "views_label": {
+              "type": "Text",
+              "config": {
+                "label": "Views Label"
+              }
+            }
+          }
+        }
+      },
+      "ad_slots": {
+        "type": "Group",
+        "config": {
+          "label": "Ad Slots",
+          "fields": {
+            "slot_name": {
+              "type": "Text",
+              "config": {
+                "label": "Slot Name"
+              }
+            },
+            "ad_unit_id": {
+              "type": "Text",
+              "config": {
+                "label": "Ad Unit Id"
+              }
+            },
+            "network": {
+              "type": "Select",
+              "config": {
+                "label": "Network",
+                "options": [
+                  "Google AdSense",
+                  "Google Ad Manager"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "ga_measurement_id": {
+        "type": "Text",
+        "config": {
+          "label": "Ga Measurement Id"
+        }
+      },
+      "gtm_container_id": {
+        "type": "Text",
+        "config": {
+          "label": "Gtm Container Id"
+        }
+      },
+      "contact_email": {
+        "type": "Text",
+        "config": {
+          "label": "Contact Email"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "id": "game",
+  "label": "Game",
+  "repeatable": true,
+  "status": true,
+  "format": "custom",
+  "json": {
+    "Main": {
+      "uid": {
+        "type": "UID",
+        "config": {
+          "label": "UID"
+        }
+      },
+      "title": {
+        "type": "Text",
+        "config": {
+          "label": "Title"
+        }
+      },
+      "developer": {
+        "type": "Text",
+        "config": {
+          "label": "Developer"
+        }
+      },
+      "publisher": {
+        "type": "Text",
+        "config": {
+          "label": "Publisher"
+        }
+      },
+      "release_date": {
+        "type": "Date",
+        "config": {
+          "label": "Release Date"
+        }
+      },
+      "release_status": {
+        "type": "Select",
+        "config": {
+          "label": "Release Status",
+          "default_value": "Lançado",
+          "options": [
+            "Lançado",
+            "Anunciado",
+            "Em Desenvolvimento",
+            "Acesso Antecipado"
+          ]
+        }
+      },
+      "summary": {
+        "type": "Text",
+        "config": {
+          "label": "Summary"
+        }
+      },
+      "description": {
+        "type": "StructuredText",
+        "config": {
+          "label": "Description",
+          "multi": "heading3,paragraph,strong,em,hyperlink,list-item,o-list-item"
+        }
+      },
+      "cover_image": {
+        "type": "Image",
+        "config": {
+          "label": "Cover Image"
+        }
+      },
+      "platforms": {
+        "type": "Group",
+        "config": {
+          "label": "Platforms",
+          "fields": {
+            "platform": {
+              "type": "Select",
+              "config": {
+                "label": "Platform",
+                "options": [
+                  "PC",
+                  "PlayStation 5",
+                  "Xbox Series X|S",
+                  "Nintendo Switch",
+                  "Nintendo Switch 2",
+                  "Mac",
+                  "Linux"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "store_links": {
+        "type": "Group",
+        "config": {
+          "label": "Store Links",
+          "fields": {
+            "store": {
+              "type": "Select",
+              "config": {
+                "label": "Store",
+                "options": [
+                  "Steam",
+                  "GOG",
+                  "Epic Games Store",
+                  "PlayStation Store",
+                  "Xbox Store",
+                  "Nintendo eShop",
+                  "Site Oficial"
+                ]
+              }
+            },
+            "url": {
+              "type": "Link",
+              "config": {
+                "label": "Url"
+              }
+            }
+          }
+        }
+      },
+      "franchise": {
+        "type": "Text",
+        "config": {
+          "label": "Franchise"
+        }
+      }
+    }
+  }
+}

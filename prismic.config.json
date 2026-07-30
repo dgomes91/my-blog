@@ -1,0 +1,9 @@
+{
+  "repositoryName": "56a5a6cc",
+  "routes": [
+    {
+      "type": "article",
+      "path": "/article/:uid"
+    }
+  ]
+}
