@@ -1,0 +1,35 @@
+{
+  "id": "newsletter_cta",
+  "name": "Newsletter Cta",
+  "type": "SharedSlice",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "description": "Default",
+      "docURL": "",
+      "imageUrl": "",
+      "version": "",
+      "primary": {
+        "heading": {
+          "type": "Text",
+          "config": {
+            "label": "Heading"
+          }
+        },
+        "subtext": {
+          "type": "Text",
+          "config": {
+            "label": "Subtext"
+          }
+        },
+        "button_label": {
+          "type": "Text",
+          "config": {
+            "label": "Button Label"
+          }
+        }
+      }
+    }
+  ]
+}

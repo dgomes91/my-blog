@@ -16,7 +16,41 @@
         "type": "Slices",
         "fieldset": "Slice Zone",
         "config": {
-          "choices": {}
+          "choices": {
+            "newsletter_cta": {
+              "type": "SharedSlice"
+            },
+            "callout": {
+              "type": "SharedSlice"
+            },
+            "comparison_table": {
+              "type": "SharedSlice"
+            },
+            "gallery": {
+              "type": "SharedSlice"
+            },
+            "image_block": {
+              "type": "SharedSlice"
+            },
+            "pros_cons": {
+              "type": "SharedSlice"
+            },
+            "pull_quote": {
+              "type": "SharedSlice"
+            },
+            "ranking_list": {
+              "type": "SharedSlice"
+            },
+            "related_articles": {
+              "type": "SharedSlice"
+            },
+            "rich_text": {
+              "type": "SharedSlice"
+            },
+            "video_embed": {
+              "type": "SharedSlice"
+            }
+          }
         }
       },
       "title": {

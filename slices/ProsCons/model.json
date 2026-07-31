@@ -1,0 +1,37 @@
+{
+  "id": "pros_cons",
+  "name": "Pros Cons",
+  "type": "SharedSlice",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "description": "Default",
+      "docURL": "",
+      "imageUrl": "",
+      "version": "",
+      "primary": {
+        "title": {
+          "type": "Text",
+          "config": {
+            "label": "Title"
+          }
+        },
+        "pros": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Pros",
+            "multi": "list-item,paragraph,strong,em"
+          }
+        },
+        "cons": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Cons",
+            "multi": "list-item,paragraph,strong,em"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "comparison_table",
+  "name": "Comparison Table",
+  "type": "SharedSlice",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "description": "Default",
+      "docURL": "",
+      "imageUrl": "",
+      "version": "",
+      "primary": {
+        "title": {
+          "type": "Text",
+          "config": {
+            "label": "Title"
+          }
+        },
+        "table": {
+          "type": "Table",
+          "config": {
+            "label": "Table"
+          }
+        },
+        "note": {
+          "type": "Text",
+          "config": {
+            "label": "Note"
+          }
+        }
+      }
+    }
+  ]
+}

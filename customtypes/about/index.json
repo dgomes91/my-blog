@@ -1,0 +1,177 @@
+{
+  "id": "about",
+  "label": "About",
+  "repeatable": false,
+  "status": true,
+  "format": "page",
+  "json": {
+    "Main": {
+      "slices": {
+        "type": "Slices",
+        "fieldset": "Slice Zone",
+        "config": {
+          "choices": {}
+        }
+      },
+      "hero_label": {
+        "type": "Text",
+        "config": {
+          "label": "Hero Label"
+        }
+      },
+      "hero_title": {
+        "type": "Text",
+        "config": {
+          "label": "Hero Title"
+        }
+      },
+      "hero_description": {
+        "type": "StructuredText",
+        "config": {
+          "label": "Hero Description",
+          "multi": "paragraph,strong,em,hyperlink"
+        }
+      },
+      "principles": {
+        "type": "Group",
+        "config": {
+          "label": "Principles",
+          "fields": {
+            "icon": {
+              "type": "Select",
+              "config": {
+                "label": "Icon",
+                "options": [
+                  "Shield",
+                  "Zap",
+                  "Eye",
+                  "BookOpen"
+                ]
+              }
+            },
+            "title": {
+              "type": "Text",
+              "config": {
+                "label": "Title"
+              }
+            },
+            "body": {
+              "type": "Text",
+              "config": {
+                "label": "Body"
+              }
+            }
+          }
+        }
+      },
+      "team_members": {
+        "type": "Group",
+        "config": {
+          "label": "Team Members"
+        }
+      },
+      "timeline": {
+        "type": "Group",
+        "config": {
+          "label": "Timeline",
+          "fields": {
+            "year": {
+              "type": "Text",
+              "config": {
+                "label": "Year"
+              }
+            },
+            "event": {
+              "type": "Text",
+              "config": {
+                "label": "Event"
+              }
+            }
+          }
+        }
+      },
+      "editorial_policy_title": {
+        "type": "Text",
+        "config": {
+          "label": "Editorial Policy Title"
+        }
+      },
+      "editorial_policy_body": {
+        "type": "StructuredText",
+        "config": {
+          "label": "Editorial Policy Body",
+          "multi": "heading3,paragraph,strong,em,hyperlink,list-item,o-list-item"
+        }
+      },
+      "advertise_cta_label": {
+        "type": "Text",
+        "config": {
+          "label": "Advertise Cta Label"
+        }
+      },
+      "advertise_cta_link": {
+        "type": "Link",
+        "config": {
+          "label": "Advertise Cta Link"
+        }
+      },
+      "contact_cta_label": {
+        "type": "Text",
+        "config": {
+          "label": "Contact Cta Label"
+        }
+      },
+      "contact_cta_link": {
+        "type": "Link",
+        "config": {
+          "label": "Contact Cta Link"
+        }
+      },
+      "seo_title": {
+        "type": "Text",
+        "config": {
+          "label": "Seo Title"
+        }
+      },
+      "seo_description": {
+        "type": "Text",
+        "config": {
+          "label": "Seo Description"
+        }
+      },
+      "seo_image": {
+        "type": "Image",
+        "config": {
+          "label": "Seo Image"
+        }
+      }
+    },
+    "SEO & Metadata": {
+      "meta_title": {
+        "type": "Text",
+        "config": {
+          "label": "Meta Title",
+          "placeholder": "A title of the page used for social media and search engines"
+        }
+      },
+      "meta_description": {
+        "type": "Text",
+        "config": {
+          "label": "Meta Description",
+          "placeholder": "A brief summary of the page"
+        }
+      },
+      "meta_image": {
+        "type": "Image",
+        "config": {
+          "label": "Meta Image",
+          "constraint": {
+            "width": 2400,
+            "height": 1260
+          },
+          "thumbnails": []
+        }
+      }
+    }
+  }
+}

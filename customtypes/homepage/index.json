@@ -1,0 +1,106 @@
+{
+  "id": "homepage",
+  "label": "Homepage",
+  "repeatable": false,
+  "status": true,
+  "format": "page",
+  "json": {
+    "Main": {
+      "slices": {
+        "type": "Slices",
+        "fieldset": "Slice Zone",
+        "config": {
+          "choices": {}
+        }
+      },
+      "hero_override": {
+        "type": "Link",
+        "config": {
+          "label": "Hero Override",
+          "select": "document",
+          "customtypes": [
+            {
+              "id": "article",
+              "fields": [
+                "title",
+                "excerpt",
+                "cover_image",
+                "format"
+              ]
+            }
+          ]
+        }
+      },
+      "reading_picks": {
+        "type": "Group",
+        "config": {
+          "label": "Reading Picks",
+          "fields": {
+            "article": {
+              "type": "Link",
+              "config": {
+                "label": "Article",
+                "select": "document",
+                "customtypes": [
+                  {
+                    "id": "article",
+                    "fields": [
+                      "title",
+                      "cover_image",
+                      "format"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "seo_title": {
+        "type": "Text",
+        "config": {
+          "label": "Seo Title"
+        }
+      },
+      "seo_description": {
+        "type": "Text",
+        "config": {
+          "label": "Seo Description"
+        }
+      },
+      "seo_image": {
+        "type": "Image",
+        "config": {
+          "label": "Seo Image"
+        }
+      }
+    },
+    "SEO & Metadata": {
+      "meta_title": {
+        "type": "Text",
+        "config": {
+          "label": "Meta Title",
+          "placeholder": "A title of the page used for social media and search engines"
+        }
+      },
+      "meta_description": {
+        "type": "Text",
+        "config": {
+          "label": "Meta Description",
+          "placeholder": "A brief summary of the page"
+        }
+      },
+      "meta_image": {
+        "type": "Image",
+        "config": {
+          "label": "Meta Image",
+          "constraint": {
+            "width": 2400,
+            "height": 1260
+          },
+          "thumbnails": []
+        }
+      }
+    }
+  }
+}

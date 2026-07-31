@@ -2,8 +2,24 @@
   "repositoryName": "56a5a6cc",
   "routes": [
     {
+      "type": "about",
+      "path": "/about"
+    },
+    {
       "type": "article",
       "path": "/article/:uid"
+    },
+    {
+      "type": "homepage",
+      "path": "/"
+    },
+    {
+      "type": "page",
+      "path": "/:uid"
+    },
+    {
+      "type": "site_settings",
+      "path": "/site-settings"
     }
   ]
 }

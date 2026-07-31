@@ -1,0 +1,29 @@
+{
+  "id": "video_embed",
+  "name": "Video Embed",
+  "type": "SharedSlice",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "description": "Default",
+      "docURL": "",
+      "imageUrl": "",
+      "version": "",
+      "primary": {
+        "video": {
+          "type": "Embed",
+          "config": {
+            "label": "Video"
+          }
+        },
+        "caption": {
+          "type": "Text",
+          "config": {
+            "label": "Caption"
+          }
+        }
+      }
+    }
+  ]
+}

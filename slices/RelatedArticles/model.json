@@ -1,0 +1,49 @@
+{
+  "id": "related_articles",
+  "name": "Related Articles",
+  "type": "SharedSlice",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "description": "Default",
+      "docURL": "",
+      "imageUrl": "",
+      "version": "",
+      "primary": {
+        "heading": {
+          "type": "Text",
+          "config": {
+            "label": "Heading"
+          }
+        },
+        "articles": {
+          "type": "Group",
+          "config": {
+            "label": "Articles",
+            "fields": {
+              "article": {
+                "type": "Link",
+                "config": {
+                  "label": "Article",
+                  "select": "document",
+                  "customtypes": [
+                    {
+                      "id": "article",
+                      "fields": [
+                        "title",
+                        "cover_image",
+                        "format",
+                        "excerpt"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
