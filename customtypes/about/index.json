@@ -1,44 +1,38 @@
 {
-  "id": "about",
-  "label": "About",
-  "repeatable": false,
-  "status": true,
   "format": "page",
+  "id": "about",
   "json": {
     "Main": {
       "slices": {
-        "type": "Slices",
-        "fieldset": "Slice Zone",
         "config": {
           "choices": {}
-        }
+        },
+        "fieldset": "Slice Zone",
+        "type": "Slices"
       },
       "hero_label": {
-        "type": "Text",
         "config": {
           "label": "Hero Label"
-        }
+        },
+        "type": "Text"
       },
       "hero_title": {
-        "type": "Text",
         "config": {
           "label": "Hero Title"
-        }
+        },
+        "type": "Text"
       },
       "hero_description": {
-        "type": "StructuredText",
         "config": {
           "label": "Hero Description",
           "multi": "paragraph,strong,em,hyperlink"
-        }
+        },
+        "type": "StructuredText"
       },
       "principles": {
-        "type": "Group",
         "config": {
-          "label": "Principles",
           "fields": {
             "icon": {
-              "type": "Select",
               "config": {
                 "label": "Icon",
                 "options": [
@@ -47,131 +41,163 @@
                   "Eye",
                   "BookOpen"
                 ]
-              }
+              },
+              "type": "Select"
             },
             "title": {
-              "type": "Text",
               "config": {
                 "label": "Title"
-              }
+              },
+              "type": "Text"
             },
             "body": {
-              "type": "Text",
               "config": {
                 "label": "Body"
-              }
+              },
+              "type": "Text"
             }
-          }
-        }
+          },
+          "label": "Principles"
+        },
+        "type": "Group"
       },
       "team_members": {
-        "type": "Group",
         "config": {
+          "fields": {
+            "author": {
+              "config": {
+                "customtypes": [
+                  {
+                    "id": "author",
+                    "fields": [
+                      "name",
+                      "role",
+                      "avatar",
+                      "bio",
+                      {
+                        "id": "focus_tags",
+                        "fields": [
+                          "tag"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "label": "Author",
+                "select": "document"
+              },
+              "type": "Link"
+            }
+          },
           "label": "Team Members"
-        }
+        },
+        "type": "Group"
       },
       "timeline": {
-        "type": "Group",
         "config": {
-          "label": "Timeline",
           "fields": {
             "year": {
-              "type": "Text",
               "config": {
                 "label": "Year"
-              }
+              },
+              "type": "Text"
             },
             "event": {
-              "type": "Text",
               "config": {
                 "label": "Event"
-              }
+              },
+              "type": "Text"
             }
-          }
-        }
+          },
+          "label": "Timeline"
+        },
+        "type": "Group"
       },
       "editorial_policy_title": {
-        "type": "Text",
         "config": {
           "label": "Editorial Policy Title"
-        }
+        },
+        "type": "Text"
       },
       "editorial_policy_body": {
-        "type": "StructuredText",
         "config": {
           "label": "Editorial Policy Body",
           "multi": "heading3,paragraph,strong,em,hyperlink,list-item,o-list-item"
-        }
+        },
+        "type": "StructuredText"
       },
       "advertise_cta_label": {
-        "type": "Text",
         "config": {
           "label": "Advertise Cta Label"
-        }
+        },
+        "type": "Text"
       },
       "advertise_cta_link": {
-        "type": "Link",
         "config": {
           "label": "Advertise Cta Link"
-        }
+        },
+        "type": "Link"
       },
       "contact_cta_label": {
-        "type": "Text",
         "config": {
           "label": "Contact Cta Label"
-        }
+        },
+        "type": "Text"
       },
       "contact_cta_link": {
-        "type": "Link",
         "config": {
           "label": "Contact Cta Link"
-        }
+        },
+        "type": "Link"
       },
       "seo_title": {
-        "type": "Text",
         "config": {
           "label": "Seo Title"
-        }
+        },
+        "type": "Text"
       },
       "seo_description": {
-        "type": "Text",
         "config": {
           "label": "Seo Description"
-        }
+        },
+        "type": "Text"
       },
       "seo_image": {
-        "type": "Image",
         "config": {
           "label": "Seo Image"
-        }
+        },
+        "type": "Image"
       }
     },
     "SEO & Metadata": {
       "meta_title": {
-        "type": "Text",
         "config": {
           "label": "Meta Title",
           "placeholder": "A title of the page used for social media and search engines"
-        }
+        },
+        "type": "Text"
       },
       "meta_description": {
-        "type": "Text",
         "config": {
           "label": "Meta Description",
           "placeholder": "A brief summary of the page"
-        }
+        },
+        "type": "Text"
       },
       "meta_image": {
-        "type": "Image",
         "config": {
-          "label": "Meta Image",
           "constraint": {
             "width": 2400,
             "height": 1260
           },
+          "label": "Meta Image",
           "thumbnails": []
-        }
+        },
+        "type": "Image"
       }
     }
-  }
+  },
+  "label": "About",
+  "repeatable": false,
+  "status": true
 }

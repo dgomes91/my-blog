@@ -87,7 +87,15 @@ export interface AboutDocumentDataPrinciplesItem {
  * Item in *About → Team Members*
  */
 export interface AboutDocumentDataTeamMembersItem {
-	
+	/**
+	 * Author field in *About → Team Members*
+	 *
+	 * - **Field Type**: Content Relationship
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: about.team_members[].author
+	 * - **Documentation**: https://prismic.io/docs/fields/content-relationship
+	 */
+	author: ContentRelationshipFieldWithData<[{"id":"author","fields":["name","role","avatar","bio",{"id":"focus_tags","fields":["tag"]}]}]>;
 }
 
 /**
@@ -593,7 +601,18 @@ interface ArticleDocumentData {
 	 * - **Tab**: Main
 	 * - **Documentation**: https://prismic.io/docs/fields/image
 	 */
-	seo_image: prismic.ImageField<never>;/**
+	seo_image: prismic.ImageField<never>;
+	
+	/**
+	 * Game field in *Article*
+	 *
+	 * - **Field Type**: Content Relationship
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: article.game
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/content-relationship
+	 */
+	game: ContentRelationshipFieldWithData<[{"id":"game","fields":["title","cover_image",{"id":"platforms","fields":["platform"]}]}]>;/**
 	 * Meta Title field in *Article*
 	 *
 	 * - **Field Type**: Text

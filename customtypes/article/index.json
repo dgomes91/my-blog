@@ -1,20 +1,15 @@
 {
-  "id": "article",
-  "label": "Article",
-  "repeatable": true,
-  "status": true,
   "format": "page",
+  "id": "article",
   "json": {
     "Main": {
       "uid": {
-        "type": "UID",
         "config": {
           "label": "UID"
-        }
+        },
+        "type": "UID"
       },
       "slices": {
-        "type": "Slices",
-        "fieldset": "Slice Zone",
         "config": {
           "choices": {
             "newsletter_cta": {
@@ -51,43 +46,42 @@
               "type": "SharedSlice"
             }
           }
-        }
+        },
+        "fieldset": "Slice Zone",
+        "type": "Slices"
       },
       "title": {
-        "type": "Text",
         "config": {
           "label": "Title"
-        }
+        },
+        "type": "Text"
       },
       "excerpt": {
-        "type": "Text",
         "config": {
           "label": "Excerpt"
-        }
+        },
+        "type": "Text"
       },
       "format": {
-        "type": "Select",
         "config": {
-          "label": "Format",
           "default_value": "Notícia",
+          "label": "Format",
           "options": [
             "Notícia",
             "Review",
             "Lista TOP"
           ]
-        }
+        },
+        "type": "Select"
       },
       "cover_image": {
-        "type": "Image",
         "config": {
           "label": "Cover Image"
-        }
+        },
+        "type": "Image"
       },
       "author": {
-        "type": "Link",
         "config": {
-          "label": "Author",
-          "select": "document",
           "customtypes": [
             {
               "id": "author",
@@ -97,78 +91,80 @@
                 "role"
               ]
             }
-          ]
-        }
+          ],
+          "label": "Author",
+          "select": "document"
+        },
+        "type": "Link"
       },
       "tags": {
-        "type": "Group",
         "config": {
-          "label": "Tags",
           "fields": {
             "tag": {
-              "type": "Text",
               "config": {
                 "label": "Tag"
-              }
+              },
+              "type": "Text"
             }
-          }
-        }
+          },
+          "label": "Tags"
+        },
+        "type": "Group"
       },
       "breaking": {
-        "type": "Boolean",
         "config": {
-          "label": "Breaking",
-          "default_value": true
-        }
+          "default_value": true,
+          "label": "Breaking"
+        },
+        "type": "Boolean"
       },
       "is_preview": {
-        "type": "Boolean",
         "config": {
-          "label": "Is Preview",
-          "default_value": true
-        }
+          "default_value": true,
+          "label": "Is Preview"
+        },
+        "type": "Boolean"
       },
       "featured": {
-        "type": "Boolean",
         "config": {
-          "label": "Featured",
-          "default_value": true
-        }
+          "default_value": true,
+          "label": "Featured"
+        },
+        "type": "Boolean"
       },
       "reading_minutes": {
-        "type": "Number",
         "config": {
           "label": "Reading Minutes"
-        }
+        },
+        "type": "Number"
       },
       "review_score": {
-        "type": "Number",
         "config": {
           "label": "Review Score"
-        }
+        },
+        "type": "Number"
       },
       "review_copy_disclosure": {
-        "type": "Text",
         "config": {
           "label": "Review Copy Disclosure"
-        }
+        },
+        "type": "Text"
       },
       "early_access": {
-        "type": "Boolean",
         "config": {
-          "label": "Early Access",
-          "default_value": true
-        }
+          "default_value": true,
+          "label": "Early Access"
+        },
+        "type": "Boolean"
       },
       "score_revision_note": {
-        "type": "StructuredText",
         "config": {
           "label": "Score Revision Note",
           "single": "paragraph,strong,em"
-        }
+        },
+        "type": "StructuredText"
       },
       "list_type": {
-        "type": "Select",
         "config": {
           "label": "List Type",
           "options": [
@@ -176,65 +172,91 @@
             "Top N",
             "Recomendação"
           ]
-        }
+        },
+        "type": "Select"
       },
       "list_item_count": {
-        "type": "Number",
         "config": {
           "label": "List Item Count"
-        }
+        },
+        "type": "Number"
       },
       "publish_date_override": {
-        "type": "Date",
         "config": {
           "label": "Publish Date Override"
-        }
+        },
+        "type": "Date"
       },
       "seo_title": {
-        "type": "Text",
         "config": {
           "label": "Seo Title"
-        }
+        },
+        "type": "Text"
       },
       "seo_description": {
-        "type": "Text",
         "config": {
           "label": "Seo Description"
-        }
+        },
+        "type": "Text"
       },
       "seo_image": {
-        "type": "Image",
         "config": {
           "label": "Seo Image"
-        }
+        },
+        "type": "Image"
+      },
+      "game": {
+        "config": {
+          "customtypes": [
+            {
+              "id": "game",
+              "fields": [
+                "title",
+                "cover_image",
+                {
+                  "id": "platforms",
+                  "fields": [
+                    "platform"
+                  ]
+                }
+              ]
+            }
+          ],
+          "label": "Game",
+          "select": "document"
+        },
+        "type": "Link"
       }
     },
     "SEO & Metadata": {
       "meta_title": {
-        "type": "Text",
         "config": {
           "label": "Meta Title",
           "placeholder": "A title of the page used for social media and search engines"
-        }
+        },
+        "type": "Text"
       },
       "meta_description": {
-        "type": "Text",
         "config": {
           "label": "Meta Description",
           "placeholder": "A brief summary of the page"
-        }
+        },
+        "type": "Text"
       },
       "meta_image": {
-        "type": "Image",
         "config": {
-          "label": "Meta Image",
           "constraint": {
             "width": 2400,
             "height": 1260
           },
+          "label": "Meta Image",
           "thumbnails": []
-        }
+        },
+        "type": "Image"
       }
     }
-  }
+  },
+  "label": "Article",
+  "repeatable": true,
+  "status": true
 }
