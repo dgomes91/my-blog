@@ -1,26 +1,30 @@
 import { FC } from "react";
 import { Content } from "@prismicio/client";
-import { SliceComponentProps } from "@prismicio/react";
+import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
 
-/**
- * Props for `PullQuote`.
- */
 export type PullQuoteProps = SliceComponentProps<Content.PullQuoteSlice>;
 
-/**
- * Component for "Pull Quote" Slices.
- */
-const PullQuote: FC<PullQuoteProps> = ({ slice }) => {
-	return (
-		<section
-			data-slice-type={slice.slice_type}
-			data-slice-variation={slice.variation}
-		>
-			Placeholder component for {slice.slice_type} (variation: {slice.variation}) slices.
-			<br />
-			<strong>You can edit this slice directly in your code editor.</strong>
-		</section>
-	)
-};
+const PullQuote: FC<PullQuoteProps> = ({ slice }) => (
+  <figure
+    data-slice-type={slice.slice_type}
+    data-slice-variation={slice.variation}
+    className="max-w-2xl mx-auto px-4 py-8 border-l-4 border-primary"
+  >
+    <blockquote
+      className="text-2xl font-bold text-foreground leading-snug"
+      style={{ fontFamily: "'Oswald', sans-serif" }}
+    >
+      <PrismicRichText field={slice.primary.quote} />
+    </blockquote>
+    {slice.primary.attribution && (
+      <figcaption
+        className="mt-3 text-sm text-muted-foreground uppercase tracking-wide"
+        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      >
+        — {slice.primary.attribution}
+      </figcaption>
+    )}
+  </figure>
+);
 
-export default PullQuote
+export default PullQuote;

@@ -162,7 +162,7 @@ export function NewsCard({ article }: { article: Article }) {
 
 // ─── Review card ───────────────────────────────────────────────────────────
 
-export function ReviewCard({ article }: { article: Article }) {
+export function ReviewCard({ article }: { article: Article & { platforms?: string[] } }) {
   const score = article.reviewScore ?? 0;
   const verdict =
     score >= 9.5
@@ -189,7 +189,9 @@ export function ReviewCard({ article }: { article: Article }) {
       </div>
       <div className="p-4">
         <p className="text-xs text-muted-foreground mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          PC {article.tags.includes("xbox") ? "/ Xbox" : ""}
+          {article.platforms && article.platforms.length > 0
+            ? article.platforms.join(" / ")
+            : `PC ${article.tags.includes("xbox") ? "/ Xbox" : ""}`}
         </p>
         <OswaldText
           as="h3"
@@ -252,12 +254,17 @@ export function SmallNewsCard({ article }: { article: Article }) {
 
 // ─── Trending section ──────────────────────────────────────────────────────
 
-export function TrendingSection() {
+export function TrendingSection({
+  items,
+}: {
+  items?: { id: number | string; rank: number; title: string; views: string }[];
+} = {}) {
+  const list = items && items.length > 0 ? items : TRENDING;
   return (
     <aside>
       <SectionTitle>Em Alta</SectionTitle>
       <ol className="space-y-0 divide-y divide-border">
-        {TRENDING.map((item) => (
+        {list.map((item) => (
           <li key={item.id} className="flex items-start gap-4 py-3.5 group cursor-pointer">
             <OswaldText as="span" className="text-3xl font-bold text-muted/50 leading-none w-7 shrink-0 mt-0.5">
               {item.rank}
@@ -283,7 +290,21 @@ export function TrendingSection() {
 
 // ─── Newsletter ────────────────────────────────────────────────────────────
 
-export function Newsletter() {
+export function Newsletter({
+  siteSettings,
+}: {
+  siteSettings?: {
+    newsletter_heading?: string | null;
+    newsletter_subtext?: string | null;
+    newsletter_button_label?: string | null;
+  } | null;
+} = {}) {
+  const heading = siteSettings?.newsletter_heading || "Newsletter Estratégia";
+  const subtext =
+    siteSettings?.newsletter_subtext ||
+    "Receba análises, guias e notícias sobre jogos de estratégia e simulação toda semana.";
+  const buttonLabel = siteSettings?.newsletter_button_label || "INSCREVER-SE";
+
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   return (
@@ -291,11 +312,11 @@ export function Newsletter() {
       <div className="flex items-center gap-2 mb-3">
         <div className="w-1 h-6 bg-primary" />
         <OswaldText as="h3" className="text-base font-bold uppercase tracking-wide">
-          Newsletter Estratégia
+          {heading}
         </OswaldText>
       </div>
       <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-        Receba análises, guias e notícias sobre jogos de estratégia e simulação toda semana.
+        {subtext}
       </p>
       {sent ? (
         <p className="text-primary font-semibold text-sm">Inscrito com sucesso!</p>
@@ -320,7 +341,7 @@ export function Newsletter() {
             className="bg-primary hover:bg-red-700 text-white font-bold text-sm tracking-wider py-2 px-4 transition-colors"
             style={{ fontFamily: "'Oswald', sans-serif" }}
           >
-            INSCREVER-SE
+            {buttonLabel}
           </button>
         </form>
       )}
@@ -344,14 +365,22 @@ export function AdPlaceholder({ className = "" }: { className?: string }) {
 
 // ─── Header ────────────────────────────────────────────────────────────────
 
-export function Header() {
+export function Header({
+  siteSettings,
+}: {
+  siteSettings?: { site_name?: string | null } | null;
+} = {}) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
+  const siteName = siteSettings?.site_name;
+  const [brandFirst, ...brandRestArr] = siteName ? siteName.split(" ") : ["DANILO", "GOMES"];
+  const brandRest = brandRestArr.join(" ") || (siteName ? "" : "GOMES");
+
   const hoje = new Date();
   // Configura o formato com dia da semana longo e data longa
-  const opcoes = { 
+  const opcoes: Intl.DateTimeFormatOptions = { 
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
@@ -371,8 +400,8 @@ export function Header() {
       <div className="px-4 md:px-8 h-14 flex items-center gap-6">
         <Link href="/" className="shrink-0">
           <div className="flex items-center gap-0.5" style={{ fontFamily: "'Oswald', sans-serif" }}>
-            <span className="text-2xl font-bold text-white tracking-tight">DANILO</span>
-            <span className="text-2xl font-bold text-primary tracking-tight">GOMES</span>
+            <span className="text-2xl font-bold text-white tracking-tight">{brandFirst}</span>
+            <span className="text-2xl font-bold text-primary tracking-tight">{brandRest}</span>
           </div>
         </Link>
 
@@ -447,15 +476,23 @@ export function Header() {
 
 // ─── Footer ────────────────────────────────────────────────────────────────
 
-export function Footer() {
+export function Footer({
+  siteSettings,
+}: {
+  siteSettings?: { site_name?: string | null } | null;
+} = {}) {
+  const siteName = siteSettings?.site_name;
+  const [brandFirst, ...brandRestArr] = siteName ? siteName.split(" ") : ["DANILO", "GOMES"];
+  const brandRest = brandRestArr.join(" ") || (siteName ? "" : "GOMES");
+
   return (
     <footer className="bg-[#0a0a0d] border-t border-border mt-12">
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-0.5 mb-4" style={{ fontFamily: "'Oswald', sans-serif" }}>
-              <span className="text-xl font-bold text-white">DANILO</span>
-              <span className="text-xl font-bold text-primary">GOMES</span>
+              <span className="text-xl font-bold text-white">{brandFirst}</span>
+              <span className="text-xl font-bold text-primary">{brandRest}</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               O lugar para fãs de jogos de estratégia, simulação e pc gaming.
@@ -506,7 +543,7 @@ export function Footer() {
           ))}
         </div>
         <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          <p>© 2026 Danilo Gomes. Todos os direitos reservados.</p>
+          <p>© 2026 {siteName || "Danilo Gomes"}. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4">
             <a href="#" className="hover:text-foreground transition-colors">Privacidade</a>
             <a href="#" className="hover:text-foreground transition-colors">Termos</a>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mulish, JetBrains_Mono, Oswald } from 'next/font/google';
 import "./styles/index.css";
 import { Footer, Header } from "./components";
+import { getSiteSettings, getSiteSettingsData } from "./lib/queries";
 
 // 1. Configure Mulish (General Sans-Serif Text)
 const mulish = Mulish({
@@ -30,20 +31,23 @@ export const metadata: Metadata = {
   description: "Página do blog Danilo gomes",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const siteSettingsDoc = await getSiteSettings();
+  const siteSettings = getSiteSettingsData(siteSettingsDoc);
+
   return (
     <html
       lang="pt-br"
        className={`${mulish.variable} ${oswald.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
-        <Header />
+        <Header siteSettings={siteSettings} />
         {children}
-        <Footer />
+        <Footer siteSettings={siteSettings} />
         </body>
     </html>
   );

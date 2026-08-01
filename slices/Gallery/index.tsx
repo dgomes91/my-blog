@@ -1,26 +1,35 @@
 import { FC } from "react";
 import { Content } from "@prismicio/client";
+import { PrismicNextImage } from "@prismicio/next";
 import { SliceComponentProps } from "@prismicio/react";
 
-/**
- * Props for `Gallery`.
- */
 export type GalleryProps = SliceComponentProps<Content.GallerySlice>;
 
-/**
- * Component for "Gallery" Slices.
- */
-const Gallery: FC<GalleryProps> = ({ slice }) => {
-	return (
-		<section
-			data-slice-type={slice.slice_type}
-			data-slice-variation={slice.variation}
-		>
-			Placeholder component for {slice.slice_type} (variation: {slice.variation}) slices.
-			<br />
-			<strong>You can edit this slice directly in your code editor.</strong>
-		</section>
-	)
-};
+const Gallery: FC<GalleryProps> = ({ slice }) => (
+  <section
+    data-slice-type={slice.slice_type}
+    data-slice-variation={slice.variation}
+    className="max-w-3xl mx-auto px-4 py-6"
+  >
+    {slice.primary.title && (
+      <h3
+        className="text-lg font-bold mb-3 text-foreground uppercase tracking-wide"
+        style={{ fontFamily: "'Oswald', sans-serif" }}
+      >
+        {slice.primary.title}
+      </h3>
+    )}
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+      {slice.primary.images.map((item, i) => (
+        <figure key={i} className="bg-card">
+          <PrismicNextImage field={item.image} className="w-full h-40 object-cover" />
+          {item.caption && (
+            <figcaption className="text-xs text-muted-foreground p-1.5">{item.caption}</figcaption>
+          )}
+        </figure>
+      ))}
+    </div>
+  </section>
+);
 
-export default Gallery
+export default Gallery;
