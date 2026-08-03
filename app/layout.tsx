@@ -4,6 +4,7 @@ import { Footer, Header } from "./components";
 import { getSiteSettings, getSiteSettingsData } from "./lib/queries";
 import { Analytics } from "@vercel/analytics/next"
 import { GoogleAnalytics } from '@next/third-parties/google'
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: "Danilo Gomes - Blog",
@@ -25,6 +26,11 @@ export default async function RootLayout({
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         <Header siteSettings={siteSettings} />
         {children}
+        {/* Script do Prismic otimizado pelo Next.js */}
+        <Script
+          src="https://static.cdn.prismic.io/prismic.js?new=true&repo=56a5a6cc"
+          strategy="afterInteractive"
+        />
         <Footer siteSettings={siteSettings} />
         </body>
     </html>
