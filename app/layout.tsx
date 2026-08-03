@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./styles/index.css";
 import { Footer, Header } from "./components";
 import { getSiteSettings, getSiteSettingsData } from "./lib/queries";
+import { Analytics } from "@vercel/analytics/next"
 
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export default async function RootLayout({
 
   return (
     <html lang="pt-br">
+      <Analytics />
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         <Header siteSettings={siteSettings} />
         {children}
