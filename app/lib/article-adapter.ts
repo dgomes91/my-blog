@@ -24,6 +24,12 @@ const MESES = [
   "Jul", "Ago", "Set", "Out", "Nov", "Dez",
 ];
 
+const FALLBACK_COVER_IMAGE =
+  "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1400&h=700&fit=crop&auto=format";
+const FALLBACK_TITLE = "Artigo sem título";
+const FALLBACK_EXCERPT = "Confira mais detalhes desta matéria em breve.";
+const FALLBACK_AUTHOR = "Redação";
+
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -64,12 +70,12 @@ export function adaptArticle(
 
   return {
     slug: doc.uid,
-    title: doc.data.title ?? "",
-    excerpt: doc.data.excerpt ?? "",
-    coverImageUrl: asImageSrc(doc.data.cover_image) ?? "",
+    title: doc.data.title?.trim() || FALLBACK_TITLE,
+    excerpt: doc.data.excerpt?.trim() || FALLBACK_EXCERPT,
+    coverImageUrl: asImageSrc(doc.data.cover_image) || FALLBACK_COVER_IMAGE,
     category: FORMAT_TO_CATEGORY[doc.data.format ?? "Notícia"] ?? "noticias",
     gameSlug: data.game?.uid ?? "",
-    author: authorData?.name ?? "Redação",
+    author: authorData?.name?.trim() || FALLBACK_AUTHOR,
     breaking: doc.data.breaking ?? false,
     publishedAt,
     readingMinutes: doc.data.reading_minutes ?? 5,

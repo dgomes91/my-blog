@@ -8,6 +8,9 @@ import { asImageSrc, isFilled } from "@prismicio/client";
 import { OswaldText, TagBadge, ScoreBadge } from "@/app/components";
 import { adaptArticle } from "@/app/lib/article-adapter";
 
+const FALLBACK_AVATAR =
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=200&fit=crop&auto=format";
+
 const FORMAT_TAG: Record<string, string> = {
   "Notícia": "NOTÍCIA",
   "Review": "ANÁLISE",
@@ -69,9 +72,11 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-6">{article.excerpt}</p>
 
           <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-border text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            {authorData?.avatar?.url && (
-              <img src={authorData.avatar.url} alt={authorData.name ?? ""} className="w-8 h-8 rounded-full object-cover" />
-            )}
+            <img
+              src={authorData?.avatar?.url || FALLBACK_AVATAR}
+              alt={authorData?.name || article.author}
+              className="w-8 h-8 rounded-full object-cover"
+            />
             <div>
               <span className="text-primary font-semibold block">{article.author}</span>
               {authorData?.role && <span className="text-[10px]">{authorData.role}</span>}

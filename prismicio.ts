@@ -18,7 +18,6 @@ export const repositoryName = prismicConfig.repositoryName;
  */
 export const createClient = (config: ClientConfig = {}) => {
 	const client = baseCreateClient(repositoryName, {
-		routes: prismicConfig.routes,
 		fetchOptions:
 			process.env.NODE_ENV === 'production'
 				? { next: { tags: ['prismic'] }, cache: 'force-cache' }

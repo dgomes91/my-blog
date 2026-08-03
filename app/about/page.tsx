@@ -7,6 +7,8 @@ import { getAboutPage, getAuthorByUid } from "../lib/queries";
 import { createClient } from "@/prismicio";
 
 const ICONS = { Shield, Zap, Eye, BookOpen } as const;
+const FALLBACK_AVATAR =
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=200&fit=crop&auto=format";
 
 export default async function AboutPage() {
   const client = createClient();
@@ -38,7 +40,7 @@ export default async function AboutPage() {
             </span>
           </div>
           <OswaldText as="h1" className="text-4xl md:text-6xl font-bold text-foreground leading-tight mb-6">
-            {about.data.hero_title}
+            {about.data.hero_title || "Sobre o projeto"}
           </OswaldText>
           <div className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
             <PrismicRichText field={about.data.hero_description} />
@@ -88,16 +90,18 @@ export default async function AboutPage() {
                 return (
                   <div key={i} className="bg-card border border-border p-6 flex gap-5 hover:border-primary/40 transition-colors">
                     <div className="w-16 h-16 shrink-0 overflow-hidden bg-secondary">
-                      {data.avatar?.url && (
-                        <img src={data.avatar.url} alt={data.name ?? ""} className="w-full h-full object-cover" />
-                      )}
+                      <img
+                        src={data.avatar?.url || FALLBACK_AVATAR}
+                        alt={data.name || "Membro da equipe"}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div>
                       <OswaldText as="h3" className="text-lg font-bold text-foreground">
-                        {data.name}
+                        {data.name || "Membro da equipe"}
                       </OswaldText>
                       <p className="text-xs text-primary font-bold mb-2 tracking-wide" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                        {data.role}
+                        {data.role || "Equipe editorial"}
                       </p>
                       {isFilled.richText(data.bio as never) && (
                         <div className="text-sm text-muted-foreground leading-relaxed mb-3">

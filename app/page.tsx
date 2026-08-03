@@ -61,8 +61,8 @@ export default async function Home() {
       ? siteSettings.trending_topics.map((t, i) => ({
           id: i,
           rank: i + 1,
-          title: t.title ?? "",
-          views: t.views_label ?? "",
+          title: t.title?.trim() || "Tema em destaque",
+          views: t.views_label?.trim() || "0 views",
         }))
       : TRENDING;
 
@@ -74,8 +74,8 @@ export default async function Home() {
             (a): a is typeof a & { uid: string; data: { title?: string | null } } =>
               isFilled.contentRelationship(a) && !!a.data,
           )
-          .map((a) => ({ slug: a.uid, title: a.data.title ?? "" }))
-      : moreNews.slice(0, 3).map((a) => ({ slug: a.slug, title: a.title }));
+          .map((a) => ({ slug: a.uid, title: a.data.title?.trim() || "Matéria em destaque" }))
+      : moreNews.slice(0, 3).map((a) => ({ slug: a.slug, title: a.title || "Matéria em destaque" }));
 
   return (
     <>

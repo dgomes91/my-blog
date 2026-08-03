@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "class-variance-authority": ["./app/components/ui/class-variance-authority.ts"],
+      "react-day-picker": ["./app/components/ui/react-day-picker.ts"]
     }
   },
   "include": [
