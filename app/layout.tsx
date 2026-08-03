@@ -3,7 +3,7 @@ import "./styles/index.css";
 import { Footer, Header } from "./components";
 import { getSiteSettings, getSiteSettingsData } from "./lib/queries";
 import { Analytics } from "@vercel/analytics/next"
-
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export const metadata: Metadata = {
   title: "My Blog",
@@ -21,6 +21,7 @@ export default async function RootLayout({
   return (
     <html lang="pt-br">
       <Analytics />
+      <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} />
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         <Header siteSettings={siteSettings} />
         {children}
