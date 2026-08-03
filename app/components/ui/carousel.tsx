@@ -7,7 +7,7 @@ import useEmblaCarousel, {
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { cn } from "./utils";
-import { Button } from "./button";
+import { Button, type ButtonProps } from "./button";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -95,12 +95,13 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return;
-    onSelect(api);
+
     api.on("reInit", onSelect);
     api.on("select", onSelect);
 
     return () => {
-      api?.off("select", onSelect);
+      api.off("reInit", onSelect);
+      api.off("select", onSelect);
     };
   }, [api, onSelect]);
 
@@ -176,7 +177,7 @@ function CarouselPrevious({
   variant = "outline",
   size = "icon",
   ...props
-}: React.ComponentProps<typeof Button>) {
+}: ButtonProps) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel();
 
   return (
@@ -206,7 +207,7 @@ function CarouselNext({
   variant = "outline",
   size = "icon",
   ...props
-}: React.ComponentProps<typeof Button>) {
+}: ButtonProps) {
   const { orientation, scrollNext, canScrollNext } = useCarousel();
 
   return (

@@ -8,12 +8,13 @@ type VariantOptions = {
   }>;
 };
 
-type VariantPropsInput = Record<string, string | number | boolean | undefined>;
+type VariantPropsInput = Record<string, unknown>;
+type VariantResolver = (props?: VariantPropsInput) => string;
 
-export type VariantProps<T extends (...args: any[]) => string> = Parameters<T>[0];
+export type VariantProps<T extends VariantResolver> = Parameters<T>[0];
 
 export function cva(baseClassName: string, config?: VariantOptions) {
-  return function resolveClassName(props: VariantPropsInput = {}) {
+  return function resolveClassName(props: VariantPropsInput = {}): string {
     const classes = [baseClassName];
 
     if (config?.defaultVariants) {

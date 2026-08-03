@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Trophy, List } from "lucide-react";
 import Link from "next/link";
@@ -44,7 +45,7 @@ function ListaCard({ article, index }: { article: AdaptedArticle; index: number 
       }`}
     >
       <div className={`relative overflow-hidden bg-secondary ${isFirst ? "aspect-[21/9] md:aspect-[16/5]" : "aspect-video"}`}>
-        <img src={article.coverImageUrl} alt={article.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        <Image src={article.coverImageUrl} alt={article.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         {itemCount && (
           <div className="absolute top-3 left-3 flex items-center gap-1.5">
@@ -95,7 +96,7 @@ function ListaRowCard({ article }: { article: AdaptedArticle }) {
   return (
     <Link href={`/article/${article.slug}`} className="group cursor-pointer flex gap-0 bg-card border border-border hover:border-primary/40 transition-colors overflow-hidden">
       <div className="relative w-32 md:w-40 shrink-0 overflow-hidden bg-secondary">
-        <img src={article.coverImageUrl} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        <Image src={article.coverImageUrl} alt={article.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
         {itemCount && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
             <div className="text-center">

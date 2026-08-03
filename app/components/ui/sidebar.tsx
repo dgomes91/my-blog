@@ -7,7 +7,7 @@ import { PanelLeftIcon } from "lucide-react";
 
 import { useIsMobile } from "./use-mobile";
 import { cn } from "./utils";
-import { Button } from "./button";
+import { Button, type ButtonProps } from "./button";
 import { Input } from "./input";
 import { Separator } from "./separator";
 import {
@@ -257,7 +257,7 @@ function SidebarTrigger({
   className,
   onClick,
   ...props
-}: React.ComponentProps<typeof Button>) {
+}: ButtonProps) {
   const { toggleSidebar } = useSidebar();
 
   return (
@@ -606,10 +606,7 @@ function SidebarMenuSkeleton({
 }: React.ComponentProps<"div"> & {
   showIcon?: boolean;
 }) {
-  // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+  const width = "75%";
 
   return (
     <div

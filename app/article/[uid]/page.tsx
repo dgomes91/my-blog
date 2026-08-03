@@ -1,10 +1,11 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SliceZone, PrismicRichText } from "@prismicio/react";
 import { Clock, Eye, MessageSquare } from "lucide-react";
 import type { Metadata } from "next";
 import { createClient } from "@/prismicio";
 import { components } from "@/slices";
-import { asImageSrc, isFilled } from "@prismicio/client";
+import { isFilled } from "@prismicio/client";
 import { OswaldText, TagBadge, ScoreBadge } from "@/app/components";
 import { adaptArticle } from "@/app/lib/article-adapter";
 
@@ -46,7 +47,7 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
     <main>
       {/* Header */}
       <div className="relative w-full h-[380px] md:h-[480px] overflow-hidden">
-        <img src={article.coverImageUrl} alt={article.title} className="w-full h-full object-cover" />
+        <Image src={article.coverImageUrl} alt={article.title} fill className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
       </div>
 
@@ -72,9 +73,11 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-6">{article.excerpt}</p>
 
           <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-border text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            <img
+            <Image
               src={authorData?.avatar?.url || FALLBACK_AVATAR}
               alt={authorData?.name || article.author}
+              width={32}
+              height={32}
               className="w-8 h-8 rounded-full object-cover"
             />
             <div>

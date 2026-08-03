@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Clock, Eye, MessageSquare, Star, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { TRENDING } from "./data";
@@ -82,10 +83,11 @@ export default async function Home() {
       {/* Hero */}
       <section className="relative w-full h-[520px] md:h-[600px] overflow-hidden group cursor-pointer">
         <Link href={`/article/${featured.slug}`} className="contents">
-          <img
+          <Image
             src={featured.coverImageUrl}
             alt={featured.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent" />
@@ -193,10 +195,11 @@ export default async function Home() {
                       </div>
                     </div>
                     <div className="relative h-48 md:h-auto overflow-hidden bg-secondary">
-                      <img
+                      <Image
                         src={featuredReview.coverImageUrl}
                         alt={featuredReview.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-card via-transparent to-transparent md:block hidden" />
                     </div>
@@ -216,10 +219,11 @@ export default async function Home() {
                     className="group cursor-pointer bg-card border border-border overflow-hidden hover:border-primary/40 transition-colors block"
                   >
                     <div className="relative overflow-hidden bg-secondary aspect-video">
-                      <img
+                      <Image
                         src={a.coverImageUrl}
                         alt={a.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                       <div className="absolute top-2 left-2"><TagBadge tag="LISTA" /></div>

@@ -1,4 +1,5 @@
 'use client'
+import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
@@ -119,10 +120,11 @@ export function NewsCard({ article }: { article: Article }) {
   return (
     <article className="group cursor-pointer">
       <div className="relative overflow-hidden bg-secondary aspect-video mb-3">
-        <img
+        <Image
           src={article.coverImageUrl}
           alt={article.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute top-2 left-2">
           <TagBadge tag={tag} />
@@ -177,10 +179,11 @@ export function ReviewCard({ article }: { article: Article & { platforms?: strin
   return (
     <article className="group cursor-pointer bg-card border border-border overflow-hidden hover:border-primary/40 transition-colors">
       <div className="relative overflow-hidden bg-secondary aspect-[5/3]">
-        <img
+        <Image
           src={article.coverImageUrl}
           alt={article.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute top-2 right-2">
           <ScoreBadge score={score} />
@@ -226,10 +229,11 @@ export function SmallNewsCard({ article }: { article: Article }) {
   return (
     <article className="flex gap-3 group cursor-pointer py-3 border-b border-border last:border-0">
       <div className="relative w-24 h-16 shrink-0 overflow-hidden bg-secondary">
-        <img
+        <Image
           src={article.coverImageUrl}
           alt={article.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </div>
       <div className="flex-1 min-w-0">

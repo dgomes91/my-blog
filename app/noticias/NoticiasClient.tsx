@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, Eye, MessageSquare } from "lucide-react";
 import Link from "next/link";
@@ -74,10 +75,11 @@ export default function NoticiasClient({
           href={`/article/${featured.slug}`}
           className="relative w-full h-80 md:h-[440px] overflow-hidden group cursor-pointer block"
         >
-          <img
+          <Image
             src={featured.coverImageUrl}
             alt={featured.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />

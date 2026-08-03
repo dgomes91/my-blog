@@ -1,9 +1,10 @@
+import Image from "next/image";
 import { Shield, Zap, Eye, BookOpen, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { PrismicRichText } from "@prismicio/react";
 import { isFilled } from "@prismicio/client";
 import { OswaldText, AdPlaceholder } from "../components";
-import { getAboutPage, getAuthorByUid } from "../lib/queries";
+import { getAboutPage } from "../lib/queries";
 import { createClient } from "@/prismicio";
 
 const ICONS = { Shield, Zap, Eye, BookOpen } as const;
@@ -90,9 +91,11 @@ export default async function AboutPage() {
                 return (
                   <div key={i} className="bg-card border border-border p-6 flex gap-5 hover:border-primary/40 transition-colors">
                     <div className="w-16 h-16 shrink-0 overflow-hidden bg-secondary">
-                      <img
+                      <Image
                         src={data.avatar?.url || FALLBACK_AVATAR}
                         alt={data.name || "Membro da equipe"}
+                        width={64}
+                        height={64}
                         className="w-full h-full object-cover"
                       />
                     </div>
