@@ -6,7 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { GoogleAnalytics } from '@next/third-parties/google'
 
 export const metadata: Metadata = {
-  title: "My Blog",
+  title: "Danilo Gomes - Blog",
   description: "Página do blog Danilo gomes",
 };
 
