@@ -160,7 +160,7 @@ export function NewsCard({ article }: { article: Article }) {
       ? "LISTA"
       : "NOTÍCIA";
   return (
-    <article className="group cursor-pointer">
+    <Link href={`/article/${article.slug}`} className="group cursor-pointer block">
       <div className="relative overflow-hidden bg-secondary aspect-video mb-3">
         <Image
           src={article.coverImageUrl}
@@ -200,7 +200,7 @@ export function NewsCard({ article }: { article: Article }) {
           </span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -219,7 +219,10 @@ export function ReviewCard({ article }: { article: Article & { platforms?: strin
       ? "BOM"
       : "MEDIANO";
   return (
-    <article className="group cursor-pointer bg-card border border-border overflow-hidden hover:border-primary/40 transition-colors">
+    <Link
+      href={`/article/${article.slug}`}
+      className="group cursor-pointer bg-card border border-border overflow-hidden hover:border-primary/40 transition-colors block"
+    >
       <div className="relative overflow-hidden bg-secondary aspect-[5/3]">
         <Image
           src={article.coverImageUrl}
@@ -255,7 +258,7 @@ export function ReviewCard({ article }: { article: Article & { platforms?: strin
           </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -269,7 +272,10 @@ export function SmallNewsCard({ article }: { article: Article }) {
       ? "LISTA"
       : "NOTÍCIA";
   return (
-    <article className="flex gap-3 group cursor-pointer py-3 border-b border-border last:border-0">
+    <Link
+      href={`/article/${article.slug}`}
+      className="flex gap-3 group cursor-pointer py-3 border-b border-border last:border-0"
+    >
       <div className="relative w-24 h-16 shrink-0 overflow-hidden bg-secondary">
         <Image
           src={article.coverImageUrl}
@@ -294,7 +300,7 @@ export function SmallNewsCard({ article }: { article: Article }) {
           <span>{article.publishedAt}</span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 

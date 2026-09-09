@@ -10,11 +10,23 @@ import { useEffect, useRef } from "react";
  * + um `slot`; caso contrário cai no retângulo "PUBLICIDADE" de antes, para o
  * layout não quebrar em dev / preview sem AdSense configurado.
  *
- * Env: NEXT_PUBLIC_ADSENSE_CLIENT (ex.: "ca-pub-1234567890123456")
+ * Env: NEXT_PUBLIC_ADSENSE_CLIENT — aceita "ca-pub-123..." ou só "pub-123..."
+ * (normalizamos para "ca-pub-...", que é o formato exigido pelo AdSense).
  * Os IDs de `slot` são criados no painel do AdSense por posição.
  */
 
-export const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+function normalizeAdSenseClient(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  const v = raw.trim();
+  if (!v) return undefined;
+  if (v.startsWith("ca-pub-")) return v;
+  if (v.startsWith("pub-")) return `ca-${v}`;
+  return v;
+}
+
+export const ADSENSE_CLIENT = normalizeAdSenseClient(
+  process.env.NEXT_PUBLIC_ADSENSE_CLIENT,
+);
 
 declare global {
   interface Window {

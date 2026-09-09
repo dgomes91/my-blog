@@ -11,13 +11,15 @@ import {
   organizationLd,
   websiteLd,
 } from "./lib/seo";
+import { ADSENSE_CLIENT } from "./components/ads";
 import { repositoryName } from "@/prismicio";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import Script from "next/script";
 
-const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
 const GA_ID = process.env.GOOGLE_ANALYTICS_ID;
+const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const BING_SITE_VERIFICATION = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
 
 // Fontes do design, carregadas e auto-hospedadas pelo Next (sem FOUT, sem
 // request a fonts.google no cliente). Expostas como variáveis CSS —
@@ -82,6 +84,16 @@ export async function generateMetadata(): Promise<Metadata> {
       ? { title: { default: title, template: `%s · ${base.applicationName}` } }
       : {}),
     ...(description ? { description } : {}),
+    ...(GOOGLE_SITE_VERIFICATION || BING_SITE_VERIFICATION
+      ? {
+          verification: {
+            ...(GOOGLE_SITE_VERIFICATION ? { google: GOOGLE_SITE_VERIFICATION } : {}),
+            ...(BING_SITE_VERIFICATION
+              ? { other: { "msvalidate.01": BING_SITE_VERIFICATION } }
+              : {}),
+          },
+        }
+      : {}),
     icons: ICONS,
     manifest: "/manifest.json",
     appleWebApp: {
