@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Clock, Eye, MessageSquare, Star, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { TRENDING } from "./data";
 import {
   NewsCard,
   ReviewCard,
@@ -22,6 +21,7 @@ import {
   getHomepage,
   getSiteSettings,
   getSiteSettingsData,
+  getTrendingTopics,
 } from "./lib/queries";
 import { createClient } from "@/prismicio";
 import { Content, isFilled } from "@prismicio/client";
@@ -48,24 +48,18 @@ export default async function Home() {
   }
   if (!heroDoc) heroDoc = await getFeaturedArticle();
 
-  const featured = adaptArticle(heroDoc);
+  const featured = heroDoc ? adaptArticle(heroDoc) : null;
   const latestNews = adaptArticles(latestNewsRes.results);
   const latestReviewsAll = adaptArticles(latestReviewsRes.results);
   const latestReviews = latestReviewsAll.slice(0, 3);
   const featuredReview = latestReviewsAll.filter((a) => a.reviewScore && a.reviewScore >= 9)[1];
   const latestListas = adaptArticles(latestListasRes.results);
-  const moreNews = adaptArticles(allArticles.filter((a) => a.uid !== heroDoc.uid).slice(0, 4));
+  const moreNews = adaptArticles(
+    allArticles.filter((a) => a.uid !== heroDoc?.uid).slice(0, 4),
+  );
   const breaking = adaptArticles(allArticles).find((a) => a.breaking);
 
-  const trending =
-    siteSettings?.trending_topics && siteSettings.trending_topics.length > 0
-      ? siteSettings.trending_topics.map((t, i) => ({
-          id: i,
-          rank: i + 1,
-          title: t.title?.trim() || "Tema em destaque",
-          views: t.views_label?.trim() || "0 views",
-        }))
-      : TRENDING;
+  const trending = getTrendingTopics(siteSettings);
 
   const readingPicks =
     homepage?.data.reading_picks && homepage.data.reading_picks.length > 0
@@ -81,46 +75,59 @@ export default async function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative w-full h-[520px] md:h-[600px] overflow-hidden group cursor-pointer">
-        <Link href={`/article/${featured.slug}`} className="contents">
-          <Image
-            src={featured.coverImageUrl}
-            alt={featured.title}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent" />
+      {featured && (
+        <section className="relative w-full h-[520px] md:h-[600px] overflow-hidden group cursor-pointer">
+          <Link href={`/article/${featured.slug}`} className="contents">
+            <Image
+              src={featured.coverImageUrl}
+              alt={featured.title}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent" />
 
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 max-w-3xl">
-            <div className="flex items-center gap-3 mb-3">
-              <TagBadge tag={featured.category === "reviews" ? "ANÁLISE" : "NOTÍCIA"} />
-              {featured.reviewScore !== undefined && (
-                <div className="flex items-center gap-1.5 bg-primary px-2 py-0.5">
-                  <Star className="w-3 h-3 text-white fill-white" />
-                  <OswaldText as="span" className="text-white font-bold text-sm">{featured.reviewScore}</OswaldText>
-                </div>
-              )}
-              <span className="text-muted-foreground text-xs" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                {featured.tags[0]?.toUpperCase()}
-              </span>
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 max-w-3xl">
+              <div className="flex items-center gap-3 mb-3">
+                <TagBadge tag={featured.category === "reviews" ? "ANÁLISE" : "NOTÍCIA"} />
+                {featured.reviewScore !== undefined && (
+                  <div className="flex items-center gap-1.5 bg-primary px-2 py-0.5">
+                    <Star className="w-3 h-3 text-white fill-white" />
+                    <OswaldText as="span" className="text-white font-bold text-sm">{featured.reviewScore}</OswaldText>
+                  </div>
+                )}
+                <span className="text-muted-foreground text-xs" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  {featured.tags[0]?.toUpperCase()}
+                </span>
+              </div>
+
+              <OswaldText as="h1" className="text-3xl md:text-5xl font-bold text-white leading-tight mb-3 tracking-tight">
+                {featured.title}
+              </OswaldText>
+              <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-5 max-w-xl">{featured.excerpt}</p>
+
+              <div className="flex items-center gap-4 text-xs text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <span className="text-primary font-semibold">{featured.author}</span>
+                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{featured.readingMinutes} min</span>
+                <span className="flex items-center gap-1"><Eye className="w-3 h-3" />—</span>
+                <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" />—</span>
+                <span className="ml-auto text-gray-500">{featured.publishedAt}</span>
+              </div>
             </div>
+          </Link>
+        </section>
+      )}
 
-            <OswaldText as="h1" className="text-3xl md:text-5xl font-bold text-white leading-tight mb-3 tracking-tight">
-              {featured.title}
-            </OswaldText>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-5 max-w-xl">{featured.excerpt}</p>
-
-            <div className="flex items-center gap-4 text-xs text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              <span className="text-primary font-semibold">{featured.author}</span>
-              <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{featured.readingMinutes} min</span>
-              <span className="flex items-center gap-1"><Eye className="w-3 h-3" />—</span>
-              <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" />—</span>
-              <span className="ml-auto text-gray-500">{featured.publishedAt}</span>
-            </div>
-          </div>
-        </Link>
-      </section>
+      {allArticles.length === 0 && (
+        <section className="max-w-7xl mx-auto px-4 md:px-8 py-20 text-center">
+          <OswaldText as="h1" className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            Nenhum artigo publicado ainda
+          </OswaldText>
+          <p className="text-sm text-muted-foreground">
+            Publique um artigo no Prismic e ele aparece aqui automaticamente.
+          </p>
+        </section>
+      )}
 
       {/* Breaking strip */}
       {breaking && (

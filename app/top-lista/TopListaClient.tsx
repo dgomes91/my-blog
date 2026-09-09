@@ -13,6 +13,7 @@ import {
   SmallNewsCard,
 } from "../components";
 import type { AdaptedArticle } from "../lib/article-adapter";
+import type { SiteSettingsData, TrendingItem } from "../lib/queries";
 
 // Fallback pra conteúdo antigo sem list_item_count preenchido no Prismic.
 function extractNumber(title: string): number | null {
@@ -130,9 +131,13 @@ const ITEMS_PER_PAGE = 6;
 export default function TopListaClient({
   listas,
   latestReviews,
+  trending,
+  siteSettings,
 }: {
   listas: AdaptedArticle[];
   latestReviews: AdaptedArticle[];
+  trending: TrendingItem[];
+  siteSettings?: SiteSettingsData;
 }) {
   const [filter, setFilter] = useState<FilterKey>("todos");
   const [page, setPage] = useState(1);
@@ -244,9 +249,9 @@ export default function TopListaClient({
           </div>
 
           <aside className="space-y-8">
-            <TrendingSection />
+            <TrendingSection items={trending} />
             <AdPlaceholder className="h-64" />
-            <Newsletter />
+            <Newsletter siteSettings={siteSettings} />
             <div>
               <SectionTitle href="/reviews">Reviews Recentes</SectionTitle>
               <div>

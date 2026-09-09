@@ -14,15 +14,20 @@ import {
   TagBadge,
 } from "../components";
 import type { AdaptedArticle } from "../lib/article-adapter";
+import type { SiteSettingsData, TrendingItem } from "../lib/queries";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function NoticiasClient({
   noticias,
   latestReviews,
+  trending,
+  siteSettings,
 }: {
   noticias: AdaptedArticle[];
   latestReviews: AdaptedArticle[];
+  trending: TrendingItem[];
+  siteSettings?: SiteSettingsData;
 }) {
   const [page, setPage] = useState(1);
   const featured = noticias[0];
@@ -161,9 +166,9 @@ export default function NoticiasClient({
           </div>
 
           <aside className="space-y-8">
-            <TrendingSection />
+            <TrendingSection items={trending} />
             <AdPlaceholder className="h-64" />
-            <Newsletter />
+            <Newsletter siteSettings={siteSettings} />
             <div>
               <SectionTitle href="/reviews">Últimas Reviews</SectionTitle>
               <div className="space-y-0">

@@ -13,6 +13,7 @@ import {
   ScoreBadge,
 } from "../components";
 import type { AdaptedArticle } from "../lib/article-adapter";
+import type { SiteSettingsData } from "../lib/queries";
 
 type SortKey = "recente" | "nota-alta" | "nota-baixa";
 const ITEMS_PER_PAGE = 6;
@@ -55,9 +56,11 @@ function ScoreDistribution({ reviews }: { reviews: AdaptedArticle[] }) {
 export default function ReviewsClient({
   reviews,
   latestNews,
+  siteSettings,
 }: {
   reviews: AdaptedArticle[];
   latestNews: AdaptedArticle[];
+  siteSettings?: SiteSettingsData;
 }) {
   const [sort, setSort] = useState<SortKey>("recente");
   const [page, setPage] = useState(1);
@@ -187,7 +190,7 @@ export default function ReviewsClient({
           <aside className="space-y-8">
             <ScoreDistribution reviews={reviews} />
             <AdPlaceholder className="h-64" />
-            <Newsletter />
+            <Newsletter siteSettings={siteSettings} />
             <div>
               <SectionTitle href="/noticias">Últimas Notícias</SectionTitle>
               <div>

@@ -8,8 +8,7 @@ import { getAboutPage } from "../lib/queries";
 import { createClient } from "@/prismicio";
 
 const ICONS = { Shield, Zap, Eye, BookOpen } as const;
-const FALLBACK_AVATAR =
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=200&fit=crop&auto=format";
+const FALLBACK_AVATAR = "/placeholder-avatar.svg";
 
 export default async function AboutPage() {
   const client = createClient();

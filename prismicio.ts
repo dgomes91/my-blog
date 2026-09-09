@@ -18,6 +18,9 @@ export const repositoryName = prismicConfig.repositoryName;
  */
 export const createClient = (config: ClientConfig = {}) => {
 	const client = baseCreateClient(repositoryName, {
+		// Resolve links de documento (nav/rodapé em site_settings, related, etc.)
+		// para URLs reais usando as rotas de prismic.config.json.
+		routes: prismicConfig.routes,
 		fetchOptions:
 			process.env.NODE_ENV === 'production'
 				? { next: { tags: ['prismic'] }, cache: 'force-cache' }

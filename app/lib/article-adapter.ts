@@ -1,17 +1,31 @@
 import { Content, asImageSrc, isFilled } from "@prismicio/client";
-import type { Article } from "@/app/data";
 
 /**
- * Os componentes de card (NewsCard, ReviewCard, SmallNewsCard, TagBadge,
- * ScoreBadge em app/components.tsx) foram construídos em cima do formato
- * mock `Article` de app/data.ts. Em vez de reescrever esses componentes,
- * este adaptador converte um ArticleDocument real do Prismic para o mesmo
- * formato — assim toda a UI já existente continua funcionando sem mudança.
- *
- * `platforms` é uma extensão opcional (não existe no `Article` original):
- * fica vazia até o campo `article.game` existir no schema (ver HANDOFF) e
- * os artigos serem ligados a um `game`. O ReviewCard usa isso com fallback
- * pro comportamento antigo quando estiver vazio.
+ * Formato plano consumido pelos componentes de card (NewsCard, ReviewCard,
+ * SmallNewsCard, TagBadge, ScoreBadge em app/components.tsx). Era o shape do
+ * mock antigo (`app/data.ts`, removido); virou o contrato de saída deste
+ * adaptador, que converte um `ArticleDocument` real do Prismic para cá — assim
+ * a UI de cards continua igual, sem depender do formato bruto da API.
+ */
+export type Article = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImageUrl: string;
+  category: "noticias" | "reviews" | "listas-top";
+  gameSlug: string;
+  author: string;
+  breaking: boolean;
+  publishedAt: string;
+  readingMinutes: number;
+  reviewScore?: number;
+  tags: string[];
+};
+
+/**
+ * `platforms` é uma extensão opcional: vem do `game` ligado ao artigo
+ * (Content Relationship `article.game`). Fica vazia se o artigo não tiver
+ * jogo associado — o ReviewCard cai no comportamento antigo nesse caso.
  */
 export type AdaptedArticle = Article & {
   platforms?: string[];
@@ -24,8 +38,7 @@ const MESES = [
   "Jul", "Ago", "Set", "Out", "Nov", "Dez",
 ];
 
-const FALLBACK_COVER_IMAGE =
-  "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1400&h=700&fit=crop&auto=format";
+const FALLBACK_COVER_IMAGE = "/placeholder-cover.svg";
 const FALLBACK_TITLE = "Artigo sem título";
 const FALLBACK_EXCERPT = "Confira mais detalhes desta matéria em breve.";
 const FALLBACK_AUTHOR = "Redação";
@@ -43,26 +56,24 @@ const FORMAT_TO_CATEGORY: Record<string, Article["category"]> = {
   "Lista TOP": "listas-top",
 };
 
-// TODO(schema): o campo `game` (Content Relationship -> game) ainda não existe
-// em customtypes/article/index.json — ver HANDOFF-integracao-claude-code.md.
-// Uso um tipo local só pra esse campo em vez de travar a compilação do
-// projeto inteiro; assim que o campo for criado via CLI e os tipos forem
-// regerados, troque `data.game` por `doc.data.game` direto e apague isso.
-type ArticleDataWithGame = Content.ArticleDocument["data"] & {
-  game?: {
-    uid?: string | null;
-    data?: { platforms?: { platform: string | null }[] };
-  } | null;
-};
-
 export function adaptArticle(
   doc: Content.ArticleDocument,
 ): AdaptedArticle {
-  const data = doc.data as ArticleDataWithGame;
+  // `article.author` e `article.game` são Content Relationships com campos
+  // selecionados no modelo — a Content API já devolve `.data` populado, sem
+  // precisar de fetchLinks/graphQuery.
   const authorData = isFilled.contentRelationship(doc.data.author)
-    ? (doc.data.author.data as { name?: string | null })
+    ? (doc.data.author.data as { name?: string | null } | undefined)
     : undefined;
-  const gameData = data.game?.data;
+  const game = isFilled.contentRelationship(doc.data.game)
+    ? doc.data.game
+    : undefined;
+  const gameData = game?.data as
+    | {
+        platforms?: { platform: string | null }[];
+        cover_image?: Parameters<typeof asImageSrc>[0];
+      }
+    | undefined;
 
   const publishedAt =
     formatDate(doc.data.publish_date_override) ||
@@ -72,9 +83,12 @@ export function adaptArticle(
     slug: doc.uid,
     title: doc.data.title?.trim() || FALLBACK_TITLE,
     excerpt: doc.data.excerpt?.trim() || FALLBACK_EXCERPT,
-    coverImageUrl: asImageSrc(doc.data.cover_image) || FALLBACK_COVER_IMAGE,
+    coverImageUrl:
+      asImageSrc(doc.data.cover_image) ||
+      asImageSrc(gameData?.cover_image) ||
+      FALLBACK_COVER_IMAGE,
     category: FORMAT_TO_CATEGORY[doc.data.format ?? "Notícia"] ?? "noticias",
-    gameSlug: data.game?.uid ?? "",
+    gameSlug: (game && "uid" in game ? game.uid : "") ?? "",
     author: authorData?.name?.trim() || FALLBACK_AUTHOR,
     breaking: doc.data.breaking ?? false,
     publishedAt,

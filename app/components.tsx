@@ -1,18 +1,60 @@
 'use client'
 import Image from "next/image";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { Search, Menu, X, ChevronRight, Clock, Eye, MessageSquare, TrendingUp } from "lucide-react";
-import type { Article } from "./data";
-import { TRENDING } from "./data";
+import type { Article } from "./lib/article-adapter";
+import type { SiteSettingsData } from "./lib/queries";
+import { subscribeToNewsletter } from "./lib/newsletter";
+import { AdUnit } from "./components/ads";
 
+type NewsletterState = { status: "idle" | "success" | "error"; message?: string };
 
-const NAV_CATEGORIES = [
+// Fallbacks usados só enquanto `site_settings.primary_nav` / `footer_nav` não
+// estão populados no Prismic (ver scripts/prismic-model-setup.sh). São rotas
+// reais do app, não dados mockados.
+const DEFAULT_NAV = [
   { label: "Notícias", path: "/noticias" },
   { label: "Reviews", path: "/reviews" },
   { label: "Listas TOP", path: "/top-lista" },
 ];
+
+const DEFAULT_FOOTER_COLUMNS = [
+  {
+    title: "Conteúdo",
+    links: [
+      { label: "Notícias", path: "/noticias" },
+      { label: "Reviews", path: "/reviews" },
+      { label: "Listas TOP", path: "/top-lista" },
+    ],
+  },
+  {
+    title: "Institucional",
+    links: [
+      { label: "Sobre", path: "/about" },
+      { label: "Anuncie", path: "/anuncie" },
+    ],
+  },
+];
+
+type NavLink = { label: string; path: string };
+
+function resolveLink(link: unknown): string {
+  if (!link || typeof link !== "object") return "#";
+  const url = (link as { url?: string | null }).url;
+  return url && url.length > 0 ? url : "#";
+}
+
+function navFromSettings(
+  items: { label?: string | null; link?: unknown }[] | undefined,
+): NavLink[] | null {
+  if (!items || items.length === 0) return null;
+  const mapped = items
+    .filter((i) => i.label && i.label.trim())
+    .map((i) => ({ label: i.label!.trim(), path: resolveLink(i.link) }));
+  return mapped.length > 0 ? mapped : null;
+}
 
 // ─── Typography helpers ────────────────────────────────────────────────────
 
@@ -263,7 +305,8 @@ export function TrendingSection({
 }: {
   items?: { id: number | string; rank: number; title: string; views: string }[];
 } = {}) {
-  const list = items && items.length > 0 ? items : TRENDING;
+  const list = items ?? [];
+  if (list.length === 0) return null;
   return (
     <aside>
       <SectionTitle>Em Alta</SectionTitle>
@@ -303,14 +346,15 @@ export function Newsletter({
     newsletter_button_label?: string | null;
   } | null;
 } = {}) {
-  const heading = siteSettings?.newsletter_heading || "Newsletter Estratégia";
+  const heading = siteSettings?.newsletter_heading || "Newsletter GTA 6";
   const subtext =
     siteSettings?.newsletter_subtext ||
-    "Receba análises, guias e notícias sobre jogos de estratégia e simulação toda semana.";
+    "Toda semana, o que há de novo sobre GTA 6 no seu e-mail: trailers, rumores confirmados e contagem regressiva.";
   const buttonLabel = siteSettings?.newsletter_button_label || "INSCREVER-SE";
 
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const initial: NewsletterState = { status: "idle" };
+  const [state, formAction, pending] = useActionState(subscribeToNewsletter, initial);
+
   return (
     <div className="bg-card border border-border p-5">
       <div className="flex items-center gap-2 mb-3">
@@ -322,31 +366,31 @@ export function Newsletter({
       <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
         {subtext}
       </p>
-      {sent ? (
-        <p className="text-primary font-semibold text-sm">Inscrito com sucesso!</p>
+      {state.status === "success" ? (
+        <p className="text-primary font-semibold text-sm">
+          {state.message || "Inscrito com sucesso!"}
+        </p>
       ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (email) setSent(true);
-          }}
-          className="flex flex-col gap-2"
-        >
+        <form action={formAction} className="flex flex-col gap-2">
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
+            required
             placeholder="seu@email.com"
             className="bg-secondary border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary transition-colors placeholder:text-muted-foreground w-full"
             style={{ fontFamily: "'Mulish', sans-serif" }}
           />
           <button
             type="submit"
-            className="bg-primary hover:bg-red-700 text-white font-bold text-sm tracking-wider py-2 px-4 transition-colors"
+            disabled={pending}
+            className="bg-primary hover:bg-red-700 text-white font-bold text-sm tracking-wider py-2 px-4 transition-colors disabled:opacity-60"
             style={{ fontFamily: "'Oswald', sans-serif" }}
           >
-            {buttonLabel}
+            {pending ? "ENVIANDO…" : buttonLabel}
           </button>
+          {state.status === "error" && state.message && (
+            <p className="text-red-500 text-xs">{state.message}</p>
+          )}
         </form>
       )}
     </div>
@@ -355,16 +399,19 @@ export function Newsletter({
 
 // ─── Ad placeholder ────────────────────────────────────────────────────────
 
-export function AdPlaceholder({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`bg-secondary border border-dashed border-border flex items-center justify-center ${className}`}
-    >
-      <span className="text-xs text-muted-foreground tracking-widest" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        PUBLICIDADE
-      </span>
-    </div>
-  );
+/**
+ * Bloco de anúncio. Com `NEXT_PUBLIC_ADSENSE_CLIENT` + `slot` definidos,
+ * renderiza uma unidade AdSense real; sem isso, o retângulo "PUBLICIDADE".
+ * Os IDs de `slot` saem do painel do AdSense por posição.
+ */
+export function AdPlaceholder({
+  className = "",
+  slot,
+}: {
+  className?: string;
+  slot?: string;
+}) {
+  return <AdUnit slot={slot} className={className} />;
 }
 
 // ─── Header ────────────────────────────────────────────────────────────────
@@ -372,7 +419,7 @@ export function AdPlaceholder({ className = "" }: { className?: string }) {
 export function Header({
   siteSettings,
 }: {
-  siteSettings?: { site_name?: string | null } | null;
+  siteSettings?: SiteSettingsData | null;
 } = {}) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -381,6 +428,8 @@ export function Header({
   const siteName = siteSettings?.site_name;
   const [brandFirst, ...brandRestArr] = siteName ? siteName.split(" ") : ["DANILO", "GOMES"];
   const brandRest = brandRestArr.join(" ") || (siteName ? "" : "GOMES");
+
+  const nav = navFromSettings(siteSettings?.primary_nav) ?? DEFAULT_NAV;
 
   const hoje = new Date();
   // Configura o formato com dia da semana longo e data longa
@@ -410,11 +459,11 @@ export function Header({
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 flex-1">
-          {NAV_CATEGORIES.map((cat) => {
+          {nav.map((cat) => {
             const active = pathname.startsWith(cat.path);
             return (
               <Link
-                key={cat.path}
+                key={cat.label}
                 href={cat.path}
                 className={`text-sm font-bold px-3 py-1.5 tracking-wide transition-colors ${
                   active
@@ -459,9 +508,9 @@ export function Header({
 
       {menuOpen && (
         <nav className="md:hidden border-t border-border px-4 py-3 flex flex-col gap-1 bg-card">
-          {NAV_CATEGORIES.map((cat) => (
+          {nav.map((cat) => (
             <Link
-              key={cat.path}
+              key={cat.label}
               href={cat.path}
               onClick={() => setMenuOpen(false)}
               className={`text-sm font-bold px-2 py-2 tracking-wider transition-colors ${
@@ -480,14 +529,55 @@ export function Header({
 
 // ─── Footer ────────────────────────────────────────────────────────────────
 
+const FOOTER_COLUMN_ORDER = ["Conteúdo", "Jogos", "Institucional", "Legal"];
+
+function footerColumnsFromSettings(
+  items: SiteSettingsData["footer_nav"] | undefined,
+): { title: string; links: NavLink[] }[] | null {
+  if (!items || items.length === 0) return null;
+  const byColumn = new Map<string, NavLink[]>();
+  for (const i of items) {
+    if (!i.label || !i.label.trim()) continue;
+    const col = i.column?.trim() || "Conteúdo";
+    const arr = byColumn.get(col) ?? [];
+    arr.push({ label: i.label.trim(), path: resolveLink(i.link) });
+    byColumn.set(col, arr);
+  }
+  if (byColumn.size === 0) return null;
+  const ordered = [...byColumn.keys()].sort(
+    (a, b) =>
+      (FOOTER_COLUMN_ORDER.indexOf(a) + 1 || 99) -
+      (FOOTER_COLUMN_ORDER.indexOf(b) + 1 || 99),
+  );
+  return ordered.map((title) => ({ title, links: byColumn.get(title)! }));
+}
+
+const DEFAULT_LEGAL_LINKS: NavLink[] = [
+  { label: "Privacidade", path: "/politica-de-privacidade" },
+  { label: "Termos", path: "/termos-de-uso" },
+  { label: "Cookies", path: "/politica-de-cookies" },
+  { label: "Comentários", path: "/politica-de-comentarios" },
+];
+
 export function Footer({
   siteSettings,
 }: {
-  siteSettings?: { site_name?: string | null } | null;
+  siteSettings?: SiteSettingsData | null;
 } = {}) {
   const siteName = siteSettings?.site_name;
   const [brandFirst, ...brandRestArr] = siteName ? siteName.split(" ") : ["DANILO", "GOMES"];
   const brandRest = brandRestArr.join(" ") || (siteName ? "" : "GOMES");
+  const tagline =
+    siteSettings?.tagline?.trim() ||
+    "Cobertura dedicada a Grand Theft Auto VI — notícias, trailers, teorias e guias.";
+
+  const allColumns = footerColumnsFromSettings(siteSettings?.footer_nav) ?? DEFAULT_FOOTER_COLUMNS;
+  const legal = allColumns.find((c) => c.title === "Legal")?.links ?? DEFAULT_LEGAL_LINKS;
+  const columns = allColumns.filter((c) => c.title !== "Legal");
+
+  const social = (siteSettings?.social_links ?? [])
+    .map((s) => ({ platform: s.platform?.trim(), url: resolveLink(s.url) }))
+    .filter((s): s is { platform: string; url: string } => !!s.platform && s.url !== "#");
 
   return (
     <footer className="bg-[#0a0a0d] border-t border-border mt-12">
@@ -498,38 +588,25 @@ export function Footer({
               <span className="text-xl font-bold text-white">{brandFirst}</span>
               <span className="text-xl font-bold text-primary">{brandRest}</span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              O lugar para fãs de jogos de estratégia, simulação e pc gaming.
-            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{tagline}</p>
+            {social.length > 0 && (
+              <div className="flex flex-wrap gap-3 mt-4">
+                {social.map((s) => (
+                  <a
+                    key={s.platform}
+                    href={s.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  >
+                    {s.platform}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
-          {[
-            {
-              title: "Conteúdo",
-              links: [
-                { label: "Notícias", path: "/noticias" },
-                { label: "Reviews", path: "/reviews" },
-                { label: "Listas TOP", path: "/top-listas" },
-              ],
-            },
-            {
-              title: "Jogos",
-              links: [
-                { label: "Cities: Skylines II", path: "#" },
-                { label: "Europa Universalis V", path: "#" },
-                { label: "Civilization VII", path: "#" },
-                { label: "Frostpunk 2", path: "#" },
-              ],
-            },
-            {
-              title: "DaniloGomes",
-              links: [
-                { label: "Sobre Nós", path: "#" },
-                { label: "Contato", path: "#" },
-                { label: "Trabalhe Conosco", path: "#" },
-                { label: "Anuncie", path: "#" },
-              ],
-            },
-          ].map((col) => (
+          {columns.map((col) => (
             <div key={col.title}>
               <OswaldText as="h4" className="text-sm font-bold tracking-wider text-foreground mb-3 uppercase">
                 {col.title}
@@ -547,11 +624,13 @@ export function Footer({
           ))}
         </div>
         <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          <p>© 2026 {siteName || "Danilo Gomes"}. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} {siteName || "Danilo Gomes"}. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-foreground transition-colors">Privacidade</a>
-            <a href="#" className="hover:text-foreground transition-colors">Termos</a>
-            <a href="#" className="hover:text-foreground transition-colors">Cookies</a>
+            {legal.map((l) => (
+              <Link key={l.label} href={l.path} className="hover:text-foreground transition-colors">
+                {l.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

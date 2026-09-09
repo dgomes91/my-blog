@@ -1,16 +1,18 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SliceZone, PrismicRichText } from "@prismicio/react";
-import { Clock, Eye, MessageSquare } from "lucide-react";
+import { Clock, MessageSquare } from "lucide-react";
 import type { Metadata } from "next";
 import { createClient } from "@/prismicio";
 import { components } from "@/slices";
 import { isFilled } from "@prismicio/client";
 import { OswaldText, TagBadge, ScoreBadge } from "@/app/components";
 import { adaptArticle } from "@/app/lib/article-adapter";
+import { DisqusComments, DisqusCommentCount } from "@/app/components/disqus";
 
-const FALLBACK_AVATAR =
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=200&fit=crop&auto=format";
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+
+const FALLBACK_AVATAR = "/placeholder-avatar.svg";
 
 const FORMAT_TAG: Record<string, string> = {
   "Notícia": "NOTÍCIA",
@@ -39,6 +41,7 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
   if (!page) notFound();
 
   const article = adaptArticle(page);
+  const articleUrl = `${SITE_URL}/article/${uid}`;
   const authorData = isFilled.contentRelationship(page.data.author)
     ? (page.data.author.data as { name?: string | null; avatar?: { url?: string | null } | null; role?: string | null } | undefined)
     : undefined;
@@ -85,8 +88,10 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
               {authorData?.role && <span className="text-[10px]">{authorData.role}</span>}
             </div>
             <span className="flex items-center gap-1 ml-auto"><Clock className="w-3 h-3" />{article.readingMinutes} min</span>
-            <span className="flex items-center gap-1"><Eye className="w-3 h-3" />—</span>
-            <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" />—</span>
+            <span className="flex items-center gap-1">
+              <MessageSquare className="w-3 h-3" />
+              <DisqusCommentCount identifier={uid} url={articleUrl} />
+            </span>
             <span>{article.publishedAt}</span>
           </div>
 
@@ -128,6 +133,8 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
           ))}
         </div>
       )}
+
+      <DisqusComments identifier={uid} title={article.title} url={articleUrl} />
     </main>
   );
 }
