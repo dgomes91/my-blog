@@ -3,6 +3,7 @@ import { Oswald, JetBrains_Mono, Mulish } from "next/font/google";
 import "./styles/index.css";
 import { Footer, Header } from "./components";
 import { ReaderRevenue } from "./components/reader-revenue";
+import { ConsentModeDefault, PrivacyMessaging } from "./components/consent";
 import { getSiteSettings, getSiteSettingsData } from "./lib/queries";
 import { JsonLd } from "./components/json-ld";
 import {
@@ -134,6 +135,8 @@ export default async function RootLayout({
 
   return (
     <html lang="pt-BR" className={FONT_VARS}>
+      {/* Consent Mode v2 default — precisa vir antes de GA/AdSense */}
+      <ConsentModeDefault />
       <Analytics />
       {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
       {ADSENSE_CLIENT && (
@@ -146,6 +149,7 @@ export default async function RootLayout({
       )}
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         <JsonLd json={jsonLdGraph(organizationLd, websiteLd(sameAs))} />
+        <PrivacyMessaging />
         <ReaderRevenue />
         <Header siteSettings={siteSettings} />
         {children}
