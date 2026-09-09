@@ -84,12 +84,12 @@
         "config": {
           "customtypes": [
             {
-              "id": "author",
               "fields": [
                 "name",
                 "avatar",
                 "role"
-              ]
+              ],
+              "id": "author"
             }
           ],
           "label": "Author",
@@ -113,21 +113,21 @@
       },
       "breaking": {
         "config": {
-          "default_value": true,
+          "default_value": false,
           "label": "Breaking"
         },
         "type": "Boolean"
       },
       "is_preview": {
         "config": {
-          "default_value": true,
+          "default_value": false,
           "label": "Is Preview"
         },
         "type": "Boolean"
       },
       "featured": {
         "config": {
-          "default_value": true,
+          "default_value": false,
           "label": "Featured"
         },
         "type": "Boolean"
@@ -152,7 +152,7 @@
       },
       "early_access": {
         "config": {
-          "default_value": true,
+          "default_value": false,
           "label": "Early Access"
         },
         "type": "Boolean"
@@ -209,17 +209,17 @@
         "config": {
           "customtypes": [
             {
-              "id": "game",
               "fields": [
                 "title",
                 "cover_image",
                 {
-                  "id": "platforms",
                   "fields": [
                     "platform"
-                  ]
+                  ],
+                  "id": "platforms"
                 }
-              ]
+              ],
+              "id": "game"
             }
           ],
           "label": "Game",
@@ -246,8 +246,8 @@
       "meta_image": {
         "config": {
           "constraint": {
-            "width": 2400,
-            "height": 1260
+            "height": 1260,
+            "width": 2400
           },
           "label": "Meta Image",
           "thumbnails": []

@@ -432,7 +432,7 @@ interface ArticleDocumentData {
 	 * - **Tab**: Main
 	 * - **Documentation**: https://prismic.io/docs/fields/content-relationship
 	 */
-	author: ContentRelationshipFieldWithData<[{"id":"author","fields":["name","avatar","role"]}]>;
+	author: ContentRelationshipFieldWithData<[{"fields":["name","avatar","role"],"id":"author"}]>;
 	
 	/**
 	 * Tags field in *Article*
@@ -450,7 +450,7 @@ interface ArticleDocumentData {
 	 *
 	 * - **Field Type**: Boolean
 	 * - **Placeholder**: *None*
-	 * - **Default Value**: true
+	 * - **Default Value**: false
 	 * - **API ID Path**: article.breaking
 	 * - **Tab**: Main
 	 * - **Documentation**: https://prismic.io/docs/fields/boolean
@@ -462,7 +462,7 @@ interface ArticleDocumentData {
 	 *
 	 * - **Field Type**: Boolean
 	 * - **Placeholder**: *None*
-	 * - **Default Value**: true
+	 * - **Default Value**: false
 	 * - **API ID Path**: article.is_preview
 	 * - **Tab**: Main
 	 * - **Documentation**: https://prismic.io/docs/fields/boolean
@@ -474,7 +474,7 @@ interface ArticleDocumentData {
 	 *
 	 * - **Field Type**: Boolean
 	 * - **Placeholder**: *None*
-	 * - **Default Value**: true
+	 * - **Default Value**: false
 	 * - **API ID Path**: article.featured
 	 * - **Tab**: Main
 	 * - **Documentation**: https://prismic.io/docs/fields/boolean
@@ -519,7 +519,7 @@ interface ArticleDocumentData {
 	 *
 	 * - **Field Type**: Boolean
 	 * - **Placeholder**: *None*
-	 * - **Default Value**: true
+	 * - **Default Value**: false
 	 * - **API ID Path**: article.early_access
 	 * - **Tab**: Main
 	 * - **Documentation**: https://prismic.io/docs/fields/boolean
@@ -612,7 +612,7 @@ interface ArticleDocumentData {
 	 * - **Tab**: Main
 	 * - **Documentation**: https://prismic.io/docs/fields/content-relationship
 	 */
-	game: ContentRelationshipFieldWithData<[{"id":"game","fields":["title","cover_image",{"id":"platforms","fields":["platform"]}]}]>;/**
+	game: ContentRelationshipFieldWithData<[{"fields":["title","cover_image",{"fields":["platform"],"id":"platforms"}],"id":"game"}]>;/**
 	 * Meta Title field in *Article*
 	 *
 	 * - **Field Type**: Text
@@ -1240,6 +1240,161 @@ export type PageDocument<Lang extends string = string> = prismic.PrismicDocument
 type SiteSettingsDocumentDataSlicesSlice = never
 
 /**
+ * Item in *Site Settings → Navegação Principal*
+ */
+export interface SiteSettingsDocumentDataPrimaryNavItem {
+	/**
+	 * Rótulo field in *Site Settings → Navegação Principal*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.primary_nav[].label
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	label: prismic.KeyTextField;
+	
+	/**
+	 * Link field in *Site Settings → Navegação Principal*
+	 *
+	 * - **Field Type**: Link
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.primary_nav[].link
+	 * - **Documentation**: https://prismic.io/docs/fields/link
+	 */
+	link: prismic.LinkField<string, string, unknown, prismic.FieldState, never>;
+}
+
+/**
+ * Item in *Site Settings → Navegação do Rodapé*
+ */
+export interface SiteSettingsDocumentDataFooterNavItem {
+	/**
+	 * Rótulo field in *Site Settings → Navegação do Rodapé*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.footer_nav[].label
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	label: prismic.KeyTextField;
+	
+	/**
+	 * Link field in *Site Settings → Navegação do Rodapé*
+	 *
+	 * - **Field Type**: Link
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.footer_nav[].link
+	 * - **Documentation**: https://prismic.io/docs/fields/link
+	 */
+	link: prismic.LinkField<string, string, unknown, prismic.FieldState, never>;
+	
+	/**
+	 * Coluna field in *Site Settings → Navegação do Rodapé*
+	 *
+	 * - **Field Type**: Select
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.footer_nav[].column
+	 * - **Documentation**: https://prismic.io/docs/fields/select
+	 */
+	column: prismic.SelectField<"Institucional" | "Conteúdo" | "Jogos" | "Legal">;
+}
+
+/**
+ * Item in *Site Settings → Redes Sociais do Site*
+ */
+export interface SiteSettingsDocumentDataSocialLinksItem {
+	/**
+	 * Rede field in *Site Settings → Redes Sociais do Site*
+	 *
+	 * - **Field Type**: Select
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.social_links[].platform
+	 * - **Documentation**: https://prismic.io/docs/fields/select
+	 */
+	platform: prismic.SelectField<"X (Twitter)" | "Instagram" | "YouTube" | "Twitch" | "Discord" | "RSS">;
+	
+	/**
+	 * URL field in *Site Settings → Redes Sociais do Site*
+	 *
+	 * - **Field Type**: Link
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.social_links[].url
+	 * - **Documentation**: https://prismic.io/docs/fields/link
+	 */
+	url: prismic.LinkField<string, string, unknown, prismic.FieldState, never>;
+}
+
+/**
+ * Item in *Site Settings → Tópicos em Alta*
+ */
+export interface SiteSettingsDocumentDataTrendingTopicsItem {
+	/**
+	 * Título field in *Site Settings → Tópicos em Alta*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.trending_topics[].title
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	title: prismic.KeyTextField;
+	
+	/**
+	 * Link field in *Site Settings → Tópicos em Alta*
+	 *
+	 * - **Field Type**: Link
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.trending_topics[].link
+	 * - **Documentation**: https://prismic.io/docs/fields/link
+	 */
+	link: prismic.LinkField<string, string, unknown, prismic.FieldState, never>;
+	
+	/**
+	 * Visualizações (texto) field in *Site Settings → Tópicos em Alta*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.trending_topics[].views_label
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	views_label: prismic.KeyTextField;
+}
+
+/**
+ * Item in *Site Settings → Espaços Publicitários*
+ */
+export interface SiteSettingsDocumentDataAdSlotsItem {
+	/**
+	 * Nome do Espaço field in *Site Settings → Espaços Publicitários*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.ad_slots[].slot_name
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	slot_name: prismic.KeyTextField;
+	
+	/**
+	 * ID da Unidade de Anúncio field in *Site Settings → Espaços Publicitários*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.ad_slots[].ad_unit_id
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	ad_unit_id: prismic.KeyTextField;
+	
+	/**
+	 * Rede field in *Site Settings → Espaços Publicitários*
+	 *
+	 * - **Field Type**: Select
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.ad_slots[].network
+	 * - **Documentation**: https://prismic.io/docs/fields/select
+	 */
+	network: prismic.SelectField<"Google AdSense" | "Google Ad Manager">;
+}
+
+/**
  * Content for Site Settings documents
  */
 interface SiteSettingsDocumentData {
@@ -1252,7 +1407,216 @@ interface SiteSettingsDocumentData {
 	 * - **Tab**: Main
 	 * - **Documentation**: https://prismic.io/docs/slices
 	 */
-	slices: prismic.SliceZone<SiteSettingsDocumentDataSlicesSlice>;/**
+	slices: prismic.SliceZone<SiteSettingsDocumentDataSlicesSlice>;
+	
+	/**
+	 * Nome do Site field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.site_name
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	site_name: prismic.KeyTextField;
+	
+	/**
+	 * Slogan/Tagline field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.tagline
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	tagline: prismic.KeyTextField;
+	
+	/**
+	 * Logo field in *Site Settings*
+	 *
+	 * - **Field Type**: Image
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.logo
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/image
+	 */
+	logo: prismic.ImageField<never>;
+	
+	/**
+	 * Favicon field in *Site Settings*
+	 *
+	 * - **Field Type**: Image
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.favicon
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/image
+	 */
+	favicon: prismic.ImageField<never>;
+	
+	/**
+	 * Título SEO Padrão field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.seo_default_title
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	seo_default_title: prismic.KeyTextField;
+	
+	/**
+	 * Descrição SEO Padrão field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.seo_default_description
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	seo_default_description: prismic.KeyTextField;
+	
+	/**
+	 * Imagem SEO Padrão (OG) field in *Site Settings*
+	 *
+	 * - **Field Type**: Image
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.seo_default_image
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/image
+	 */
+	seo_default_image: prismic.ImageField<never>;
+	
+	/**
+	 * Navegação Principal field in *Site Settings*
+	 *
+	 * - **Field Type**: Group
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.primary_nav[]
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/repeatable-group
+	 */
+	primary_nav: prismic.GroupField<Simplify<SiteSettingsDocumentDataPrimaryNavItem>>;
+	
+	/**
+	 * Navegação do Rodapé field in *Site Settings*
+	 *
+	 * - **Field Type**: Group
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.footer_nav[]
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/repeatable-group
+	 */
+	footer_nav: prismic.GroupField<Simplify<SiteSettingsDocumentDataFooterNavItem>>;
+	
+	/**
+	 * Redes Sociais do Site field in *Site Settings*
+	 *
+	 * - **Field Type**: Group
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.social_links[]
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/repeatable-group
+	 */
+	social_links: prismic.GroupField<Simplify<SiteSettingsDocumentDataSocialLinksItem>>;
+	
+	/**
+	 * Título da Newsletter field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.newsletter_heading
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	newsletter_heading: prismic.KeyTextField;
+	
+	/**
+	 * Subtítulo da Newsletter field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.newsletter_subtext
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	newsletter_subtext: prismic.KeyTextField;
+	
+	/**
+	 * Texto do Botão field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.newsletter_button_label
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	newsletter_button_label: prismic.KeyTextField;
+	
+	/**
+	 * Tópicos em Alta field in *Site Settings*
+	 *
+	 * - **Field Type**: Group
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.trending_topics[]
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/repeatable-group
+	 */
+	trending_topics: prismic.GroupField<Simplify<SiteSettingsDocumentDataTrendingTopicsItem>>;
+	
+	/**
+	 * Espaços Publicitários field in *Site Settings*
+	 *
+	 * - **Field Type**: Group
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.ad_slots[]
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/repeatable-group
+	 */
+	ad_slots: prismic.GroupField<Simplify<SiteSettingsDocumentDataAdSlotsItem>>;
+	
+	/**
+	 * GA Measurement ID field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.ga_measurement_id
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	ga_measurement_id: prismic.KeyTextField;
+	
+	/**
+	 * GTM Container ID field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.gtm_container_id
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	gtm_container_id: prismic.KeyTextField;
+	
+	/**
+	 * E-mail de Contato field in *Site Settings*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.contact_email
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	contact_email: prismic.KeyTextField;
+	
+	/**
+	 * Link "Anuncie Conosco" field in *Site Settings*
+	 *
+	 * - **Field Type**: Content Relationship
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: site_settings.advertise_page_link
+	 * - **Tab**: Main
+	 * - **Documentation**: https://prismic.io/docs/fields/content-relationship
+	 */
+	advertise_page_link: ContentRelationshipFieldWithData<[{"fields":["title"],"id":"page"}]>;/**
 	 * Meta Title field in *Site Settings*
 	 *
 	 * - **Field Type**: Text
@@ -2005,6 +2369,11 @@ declare module "@prismicio/client" {
 			SiteSettingsDocument,
 			SiteSettingsDocumentData,
 			SiteSettingsDocumentDataSlicesSlice,
+			SiteSettingsDocumentDataPrimaryNavItem,
+			SiteSettingsDocumentDataFooterNavItem,
+			SiteSettingsDocumentDataSocialLinksItem,
+			SiteSettingsDocumentDataTrendingTopicsItem,
+			SiteSettingsDocumentDataAdSlotsItem,
 			AllDocumentTypes,
 			CalloutSlice,
 			CalloutSliceDefaultPrimary,

@@ -1,45 +1,274 @@
 {
+  "format": "page",
   "id": "site_settings",
-  "label": "Site Settings",
-  "repeatable": false,
   "json": {
     "Main": {
       "slices": {
-        "type": "Slices",
-        "fieldset": "Slice Zone",
         "config": {
           "choices": {}
-        }
+        },
+        "fieldset": "Slice Zone",
+        "type": "Slices"
+      },
+      "site_name": {
+        "config": {
+          "label": "Nome do Site"
+        },
+        "type": "Text"
+      },
+      "tagline": {
+        "config": {
+          "label": "Slogan/Tagline"
+        },
+        "type": "Text"
+      },
+      "logo": {
+        "config": {
+          "label": "Logo"
+        },
+        "type": "Image"
+      },
+      "favicon": {
+        "config": {
+          "label": "Favicon"
+        },
+        "type": "Image"
+      },
+      "seo_default_title": {
+        "config": {
+          "label": "Título SEO Padrão"
+        },
+        "type": "Text"
+      },
+      "seo_default_description": {
+        "config": {
+          "label": "Descrição SEO Padrão"
+        },
+        "type": "Text"
+      },
+      "seo_default_image": {
+        "config": {
+          "label": "Imagem SEO Padrão (OG)"
+        },
+        "type": "Image"
+      },
+      "primary_nav": {
+        "config": {
+          "fields": {
+            "label": {
+              "config": {
+                "label": "Rótulo"
+              },
+              "type": "Text"
+            },
+            "link": {
+              "config": {
+                "label": "Link"
+              },
+              "type": "Link"
+            }
+          },
+          "label": "Navegação Principal"
+        },
+        "type": "Group"
+      },
+      "footer_nav": {
+        "config": {
+          "fields": {
+            "label": {
+              "config": {
+                "label": "Rótulo"
+              },
+              "type": "Text"
+            },
+            "link": {
+              "config": {
+                "label": "Link"
+              },
+              "type": "Link"
+            },
+            "column": {
+              "config": {
+                "label": "Coluna",
+                "options": [
+                  "Institucional",
+                  "Conteúdo",
+                  "Jogos",
+                  "Legal"
+                ]
+              },
+              "type": "Select"
+            }
+          },
+          "label": "Navegação do Rodapé"
+        },
+        "type": "Group"
+      },
+      "social_links": {
+        "config": {
+          "fields": {
+            "platform": {
+              "config": {
+                "label": "Rede",
+                "options": [
+                  "X (Twitter)",
+                  "Instagram",
+                  "YouTube",
+                  "Twitch",
+                  "Discord",
+                  "RSS"
+                ]
+              },
+              "type": "Select"
+            },
+            "url": {
+              "config": {
+                "label": "URL"
+              },
+              "type": "Link"
+            }
+          },
+          "label": "Redes Sociais do Site"
+        },
+        "type": "Group"
+      },
+      "newsletter_heading": {
+        "config": {
+          "label": "Título da Newsletter"
+        },
+        "type": "Text"
+      },
+      "newsletter_subtext": {
+        "config": {
+          "label": "Subtítulo da Newsletter"
+        },
+        "type": "Text"
+      },
+      "newsletter_button_label": {
+        "config": {
+          "label": "Texto do Botão"
+        },
+        "type": "Text"
+      },
+      "trending_topics": {
+        "config": {
+          "fields": {
+            "title": {
+              "config": {
+                "label": "Título"
+              },
+              "type": "Text"
+            },
+            "link": {
+              "config": {
+                "label": "Link"
+              },
+              "type": "Link"
+            },
+            "views_label": {
+              "config": {
+                "label": "Visualizações (texto)"
+              },
+              "type": "Text"
+            }
+          },
+          "label": "Tópicos em Alta"
+        },
+        "type": "Group"
+      },
+      "ad_slots": {
+        "config": {
+          "fields": {
+            "slot_name": {
+              "config": {
+                "label": "Nome do Espaço"
+              },
+              "type": "Text"
+            },
+            "ad_unit_id": {
+              "config": {
+                "label": "ID da Unidade de Anúncio"
+              },
+              "type": "Text"
+            },
+            "network": {
+              "config": {
+                "label": "Rede",
+                "options": [
+                  "Google AdSense",
+                  "Google Ad Manager"
+                ]
+              },
+              "type": "Select"
+            }
+          },
+          "label": "Espaços Publicitários"
+        },
+        "type": "Group"
+      },
+      "ga_measurement_id": {
+        "config": {
+          "label": "GA Measurement ID"
+        },
+        "type": "Text"
+      },
+      "gtm_container_id": {
+        "config": {
+          "label": "GTM Container ID"
+        },
+        "type": "Text"
+      },
+      "contact_email": {
+        "config": {
+          "label": "E-mail de Contato"
+        },
+        "type": "Text"
+      },
+      "advertise_page_link": {
+        "config": {
+          "customtypes": [
+            {
+              "fields": [
+                "title"
+              ],
+              "id": "page"
+            }
+          ],
+          "label": "Link \"Anuncie Conosco\"",
+          "select": "document"
+        },
+        "type": "Link"
       }
     },
     "SEO & Metadata": {
       "meta_title": {
-        "type": "Text",
         "config": {
           "label": "Meta Title",
           "placeholder": "A title of the page used for social media and search engines"
-        }
+        },
+        "type": "Text"
       },
       "meta_description": {
-        "type": "Text",
         "config": {
           "label": "Meta Description",
           "placeholder": "A brief summary of the page"
-        }
+        },
+        "type": "Text"
       },
       "meta_image": {
-        "type": "Image",
         "config": {
-          "label": "Meta Image",
           "constraint": {
-            "width": 2400,
-            "height": 1260
+            "height": 1260,
+            "width": 2400
           },
+          "label": "Meta Image",
           "thumbnails": []
-        }
+        },
+        "type": "Image"
       }
     }
   },
-  "status": true,
-  "format": "page"
+  "label": "Site Settings",
+  "repeatable": false,
+  "status": true
 }
