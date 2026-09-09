@@ -22,7 +22,7 @@ const RankingList: FC<RankingListProps> = ({ slice }) => (
     {slice.primary.title && (
       <h3
         className="text-xl font-bold mb-2 text-foreground uppercase tracking-wide"
-        style={{ fontFamily: "'Oswald', sans-serif" }}
+        style={{ fontFamily: "var(--font-oswald), sans-serif" }}
       >
         {slice.primary.title}
       </h3>
@@ -37,7 +37,7 @@ const RankingList: FC<RankingListProps> = ({ slice }) => (
         <li key={i} className="flex gap-3 bg-card border border-border p-3">
           <span
             className="shrink-0 w-8 h-8 flex items-center justify-center bg-secondary text-foreground font-bold"
-            style={{ fontFamily: "'Oswald', sans-serif" }}
+            style={{ fontFamily: "var(--font-oswald), sans-serif" }}
           >
             {i + 1}
           </span>
@@ -46,13 +46,13 @@ const RankingList: FC<RankingListProps> = ({ slice }) => (
           )}
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-bold text-foreground" style={{ fontFamily: "'Oswald', sans-serif" }}>
+              <span className="font-bold text-foreground" style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
                 {item.name}
               </span>
               {item.tier && (
                 <span
                   className={`text-[10px] font-bold px-1.5 py-0.5 ${TIER_COLORS[item.tier] ?? TIER_COLORS.D}`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  style={{ fontFamily: "var(--font-jetbrains), monospace" }}
                 >
                   TIER {item.tier}
                 </span>

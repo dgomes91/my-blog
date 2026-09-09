@@ -52,7 +52,7 @@ export function AdUnit({
       >
         <span
           className="text-xs text-muted-foreground tracking-widest"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ fontFamily: "var(--font-jetbrains), monospace" }}
         >
           PUBLICIDADE
         </span>

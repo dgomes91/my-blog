@@ -37,13 +37,13 @@ function ScoreDistribution({ reviews }: { reviews: AdaptedArticle[] }) {
       <div className="space-y-2">
         {bands.map((b) => (
           <div key={b.label} className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground w-8 text-right" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <span className="text-xs text-muted-foreground w-8 text-right" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
               {b.label}
             </span>
             <div className="flex-1 bg-secondary h-4">
               <div className={`${b.color} h-full transition-all duration-500`} style={{ width: `${(b.count / max) * 100}%` }} />
             </div>
-            <span className="text-xs text-muted-foreground w-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <span className="text-xs text-muted-foreground w-4" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
               {b.count}
             </span>
           </div>
@@ -88,7 +88,7 @@ export default function ReviewsClient({
                 Reviews
               </OswaldText>
             </div>
-            <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
               {reviews.length} análises publicadas
             </p>
           </div>
@@ -102,7 +102,7 @@ export default function ReviewsClient({
                   className={`px-4 py-2 text-xs font-bold tracking-wide transition-colors ${
                     sort === s ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`}
-                  style={{ fontFamily: "'Oswald', sans-serif" }}
+                  style={{ fontFamily: "var(--font-oswald), sans-serif" }}
                 >
                   {labels[s]}
                 </button>
@@ -119,10 +119,10 @@ export default function ReviewsClient({
               <div className="grid grid-cols-1 md:grid-cols-[1fr_360px]">
                 <div className="p-6 md:p-10 flex flex-col justify-center">
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                       ANÁLISE EM DESTAQUE
                     </span>
-                    <span className="text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <span className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                       {featured.publishedAt}
                     </span>
                   </div>
@@ -141,7 +141,7 @@ export default function ReviewsClient({
                       <OswaldText as="p" className="text-xs font-bold text-muted-foreground tracking-wide">
                         ACLAMADO PELA CRÍTICA
                       </OswaldText>
-                      <p className="text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      <p className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                         por {featured.author}
                       </p>
                     </div>
@@ -176,7 +176,7 @@ export default function ReviewsClient({
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                  <button key={n} onClick={() => setPage(n)} className={`w-9 h-9 text-sm font-bold transition-colors border ${n === page ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:text-foreground hover:border-primary"}`} style={{ fontFamily: "'Oswald', sans-serif" }}>
+                  <button key={n} onClick={() => setPage(n)} className={`w-9 h-9 text-sm font-bold transition-colors border ${n === page ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:text-foreground hover:border-primary"}`} style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
                     {n}
                   </button>
                 ))}

@@ -14,12 +14,12 @@ const RichText: FC<RichTextProps> = ({ slice }) => (
       field={slice.primary.content}
       components={{
         heading2: ({ children }) => (
-          <h2 className="text-2xl font-bold mt-8 mb-3 text-foreground" style={{ fontFamily: "'Oswald', sans-serif" }}>
+          <h2 className="text-2xl font-bold mt-8 mb-3 text-foreground" style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
             {children}
           </h2>
         ),
         heading3: ({ children }) => (
-          <h3 className="text-xl font-bold mt-6 mb-2 text-foreground" style={{ fontFamily: "'Oswald', sans-serif" }}>
+          <h3 className="text-xl font-bold mt-6 mb-2 text-foreground" style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
             {children}
           </h3>
         ),

@@ -14,7 +14,7 @@ const ProsCons: FC<ProsConsProps> = ({ slice }) => (
     {slice.primary.title && (
       <h3
         className="text-lg font-bold mb-3 text-foreground uppercase tracking-wide"
-        style={{ fontFamily: "'Oswald', sans-serif" }}
+        style={{ fontFamily: "var(--font-oswald), sans-serif" }}
       >
         {slice.primary.title}
       </h3>

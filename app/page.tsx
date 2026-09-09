@@ -96,7 +96,7 @@ export default async function Home() {
                     <OswaldText as="span" className="text-white font-bold text-sm">{featured.reviewScore}</OswaldText>
                   </div>
                 )}
-                <span className="text-muted-foreground text-xs" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <span className="text-muted-foreground text-xs" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                   {featured.tags[0]?.toUpperCase()}
                 </span>
               </div>
@@ -106,7 +106,7 @@ export default async function Home() {
               </OswaldText>
               <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-5 max-w-xl">{featured.excerpt}</p>
 
-              <div className="flex items-center gap-4 text-xs text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              <div className="flex items-center gap-4 text-xs text-gray-400" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                 <span className="text-primary font-semibold">{featured.author}</span>
                 <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{featured.readingMinutes} min</span>
                 <span className="flex items-center gap-1"><Eye className="w-3 h-3" />—</span>
@@ -180,7 +180,7 @@ export default async function Home() {
                   <div className="grid grid-cols-1 md:grid-cols-[1fr_280px]">
                     <div className="p-6 md:p-8 flex flex-col justify-center">
                       <div className="flex items-center gap-3 mb-3">
-                        <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                        <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                           ANÁLISE EM DESTAQUE
                         </span>
                       </div>
@@ -196,7 +196,7 @@ export default async function Home() {
                       <div className="flex items-center gap-4">
                         <ScoreBadge score={featuredReview.reviewScore} size="lg" />
                         <div>
-                          <p className="text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Nota do Editor</p>
+                          <p className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>Nota do Editor</p>
                           <OswaldText as="p" className="font-bold text-sm text-foreground">ACLAMADO UNIVERSALMENTE</OswaldText>
                         </div>
                       </div>
@@ -240,7 +240,7 @@ export default async function Home() {
                         </OswaldText>
                       </div>
                     </div>
-                    <div className="px-4 py-3 flex items-center justify-between text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <div className="px-4 py-3 flex items-center justify-between text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                       <span className="text-primary font-semibold">{a.author}</span>
                       <span>{a.readingMinutes} min · {a.publishedAt}</span>
                     </div>
@@ -250,7 +250,7 @@ export default async function Home() {
               <Link
                 href="/top-lista"
                 className="mt-4 flex items-center justify-center gap-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary py-3 text-sm font-bold tracking-wide transition-colors w-full"
-                style={{ fontFamily: "'Oswald', sans-serif" }}
+                style={{ fontFamily: "var(--font-oswald), sans-serif" }}
               >
                 VER TODAS AS LISTAS <ChevronRight className="w-4 h-4" />
               </Link>

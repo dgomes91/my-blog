@@ -1,7 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Oswald, JetBrains_Mono, Mulish } from "next/font/google";
 import "./styles/index.css";
 import { Footer, Header } from "./components";
+import { ReaderRevenue } from "./components/reader-revenue";
 import { getSiteSettings, getSiteSettingsData } from "./lib/queries";
+import { JsonLd } from "./components/json-ld";
+import {
+  baseMetadata,
+  jsonLdGraph,
+  organizationLd,
+  websiteLd,
+} from "./lib/seo";
 import { repositoryName } from "@/prismicio";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -9,6 +18,29 @@ import Script from "next/script";
 
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
 const GA_ID = process.env.GOOGLE_ANALYTICS_ID;
+
+// Fontes do design, carregadas e auto-hospedadas pelo Next (sem FOUT, sem
+// request a fonts.google no cliente). Expostas como variáveis CSS —
+// tailwind.css mapeia --font-sans/--font-mono/--font-display para elas.
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-oswald",
+});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--font-jetbrains",
+});
+const mulish = Mulish({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-mulish",
+});
+const FONT_VARS = `${oswald.variable} ${jetbrainsMono.variable} ${mulish.variable}`;
 
 // Conjunto de favicons gerado pelo design, servido de /public.
 const ICONS: Metadata["icons"] = {
@@ -38,29 +70,40 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getSiteSettingsData(await getSiteSettings());
-  const siteName = settings?.site_name?.trim() || "Danilo Gomes";
-  const title = settings?.seo_default_title?.trim() || `${siteName} — Central de GTA 6`;
-  const description =
-    settings?.seo_default_description?.trim() ||
-    "Cobertura dedicada a Grand Theft Auto VI: notícias, trailers, mapa de Leonida, Jason e Lucia, data de lançamento e guias.";
+  const base = baseMetadata();
+
+  const title = settings?.seo_default_title?.trim();
+  const description = settings?.seo_default_description?.trim();
   const ogImage = settings?.seo_default_image?.url ?? undefined;
 
   return {
-    title: { default: title, template: `%s · ${siteName}` },
-    description,
+    ...base,
+    ...(title
+      ? { title: { default: title, template: `%s · ${base.applicationName}` } }
+      : {}),
+    ...(description ? { description } : {}),
     icons: ICONS,
     manifest: "/manifest.json",
-    appleWebApp: { capable: true, title: siteName, statusBarStyle: "black-translucent" },
+    appleWebApp: {
+      capable: true,
+      title: settings?.site_name?.trim() || "Danilo Gomes",
+      statusBarStyle: "black-translucent",
+    },
     other: {
       "msapplication-TileColor": "#0e0e11",
       "msapplication-config": "/browserconfig.xml",
     },
     openGraph: {
-      title,
-      description,
-      siteName,
-      type: "website",
-      images: ogImage ? [ogImage] : [],
+      ...base.openGraph,
+      ...(title ? { title } : {}),
+      ...(description ? { description } : {}),
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
+    twitter: {
+      ...base.twitter,
+      ...(title ? { title } : {}),
+      ...(description ? { description } : {}),
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
   };
 }
@@ -73,8 +116,12 @@ export default async function RootLayout({
   const siteSettingsDoc = await getSiteSettings();
   const siteSettings = getSiteSettingsData(siteSettingsDoc);
 
+  const sameAs = (siteSettings?.social_links ?? [])
+    .map((s) => (s.url as { url?: string | null } | null)?.url)
+    .filter((u): u is string => !!u && /^https?:\/\//.test(u));
+
   return (
-    <html lang="pt-br">
+    <html lang="pt-BR" className={FONT_VARS}>
       <Analytics />
       {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
       {ADSENSE_CLIENT && (
@@ -86,6 +133,8 @@ export default async function RootLayout({
         />
       )}
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
+        <JsonLd json={jsonLdGraph(organizationLd, websiteLd(sameAs))} />
+        <ReaderRevenue />
         <Header siteSettings={siteSettings} />
         {children}
         {/* Script do Prismic otimizado pelo Next.js */}

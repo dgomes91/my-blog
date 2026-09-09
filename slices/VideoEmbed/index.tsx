@@ -21,7 +21,7 @@ const VideoEmbed: FC<VideoEmbedProps> = ({ slice }) => {
       {slice.primary.caption && (
         <figcaption
           className="mt-2 text-xs text-muted-foreground"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ fontFamily: "var(--font-jetbrains), monospace" }}
         >
           {slice.primary.caption}
         </figcaption>

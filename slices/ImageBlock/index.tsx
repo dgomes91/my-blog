@@ -15,7 +15,7 @@ const ImageBlock: FC<ImageBlockProps> = ({ slice }) => (
     {(slice.primary.caption || slice.primary.credit) && (
       <figcaption
         className="mt-2 text-xs text-muted-foreground flex justify-between gap-4"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        style={{ fontFamily: "var(--font-jetbrains), monospace" }}
       >
         <span>{slice.primary.caption}</span>
         {slice.primary.credit && <span className="italic">{slice.primary.credit}</span>}

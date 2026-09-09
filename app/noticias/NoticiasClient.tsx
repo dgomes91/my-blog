@@ -47,7 +47,7 @@ export default function NoticiasClient({
                 Notícias
               </OswaldText>
             </div>
-            <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
               {noticias.length} artigos publicados
             </p>
           </div>
@@ -65,7 +65,7 @@ export default function NoticiasClient({
                     ? "bg-primary text-white"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
-                style={{ fontFamily: "'Oswald', sans-serif" }}
+                style={{ fontFamily: "var(--font-oswald), sans-serif" }}
               >
                 {tab.label.toUpperCase()}
               </Link>
@@ -90,7 +90,7 @@ export default function NoticiasClient({
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
           <div className="absolute bottom-0 left-0 p-6 md:p-10 max-w-2xl">
             {featured.breaking && (
-              <div className="inline-flex items-center gap-1.5 bg-primary text-white text-xs font-bold px-3 py-1 mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              <div className="inline-flex items-center gap-1.5 bg-primary text-white text-xs font-bold px-3 py-1 mb-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                 URGENTE
               </div>
@@ -100,7 +100,7 @@ export default function NoticiasClient({
               {featured.title}
             </OswaldText>
             <p className="text-gray-300 text-sm leading-relaxed mb-4 max-w-lg hidden md:block">{featured.excerpt}</p>
-            <div className="flex items-center gap-4 text-xs text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <div className="flex items-center gap-4 text-xs text-gray-400" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
               <span className="text-primary font-semibold">{featured.author}</span>
               <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{featured.readingMinutes} min</span>
               <span className="flex items-center gap-1"><Eye className="w-3 h-3" />—</span>
@@ -149,7 +149,7 @@ export default function NoticiasClient({
                         ? "bg-primary text-white border-primary"
                         : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
                     }`}
-                    style={{ fontFamily: "'Oswald', sans-serif" }}
+                    style={{ fontFamily: "var(--font-oswald), sans-serif" }}
                   >
                     {n}
                   </button>

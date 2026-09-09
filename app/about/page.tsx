@@ -1,14 +1,43 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Shield, Zap, Eye, BookOpen, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { PrismicRichText } from "@prismicio/react";
-import { isFilled } from "@prismicio/client";
+import { asText, isFilled } from "@prismicio/client";
 import { OswaldText, AdPlaceholder } from "../components";
 import { getAboutPage } from "../lib/queries";
 import { createClient } from "@/prismicio";
+import {
+  SITE_NAME,
+  absoluteUrl,
+  breadcrumbLd,
+  jsonLdGraph,
+  organizationLd,
+  pageMetadata,
+  rasterImage,
+} from "../lib/seo";
+import { JsonLd } from "../components/json-ld";
 
 const ICONS = { Shield, Zap, Eye, BookOpen } as const;
 const FALLBACK_AVATAR = "/placeholder-avatar.svg";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const about = await getAboutPage().catch(() => null);
+  const title =
+    about?.data.seo_title?.trim() ||
+    about?.data.hero_title?.trim() ||
+    "Sobre";
+  const description =
+    about?.data.seo_description?.trim() ||
+    (asText(about?.data.hero_description) || "").slice(0, 200) ||
+    `Quem faz o ${SITE_NAME} e como cobrimos GTA 6.`;
+  return pageMetadata({
+    title,
+    description,
+    path: "/about",
+    images: [rasterImage(about?.data.seo_image?.url)],
+  });
+}
 
 export default async function AboutPage() {
   const client = createClient();
@@ -27,15 +56,33 @@ export default async function AboutPage() {
       ? teamFromField
       : await client.getAllByType("author", { limit: 8 }).catch(() => []);
 
+  const jsonLd = jsonLdGraph(
+    organizationLd,
+    {
+      "@type": "AboutPage",
+      "@id": `${absoluteUrl("/about")}#webpage`,
+      url: absoluteUrl("/about"),
+      name: about.data.hero_title?.trim() || "Sobre",
+      inLanguage: "pt-BR",
+      about: { "@id": `${absoluteUrl("/")}#organization` },
+      isPartOf: { "@id": `${absoluteUrl("/")}#website` },
+    },
+    breadcrumbLd([
+      { name: "Início", path: "/" },
+      { name: "Sobre", path: "/about" },
+    ]),
+  );
+
   return (
     <main>
+      <JsonLd json={jsonLd} />
       {/* Hero */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 to-background" />
         <div className="relative max-w-4xl mx-auto px-4 md:px-8 py-20 md:py-28">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-1 h-6 bg-primary" />
-            <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
               {about.data.hero_label || "Sobre o projeto"}
             </span>
           </div>
@@ -102,7 +149,7 @@ export default async function AboutPage() {
                       <OswaldText as="h3" className="text-lg font-bold text-foreground">
                         {data.name || "Membro da equipe"}
                       </OswaldText>
-                      <p className="text-xs text-primary font-bold mb-2 tracking-wide" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      <p className="text-xs text-primary font-bold mb-2 tracking-wide" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                         {data.role || "Equipe editorial"}
                       </p>
                       {isFilled.richText(data.bio as never) && (
@@ -113,7 +160,7 @@ export default async function AboutPage() {
                       {data.focus_tags && data.focus_tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {data.focus_tags.map((tag, j) => (
-                            <span key={j} className="text-[10px] px-2 py-0.5 bg-secondary text-muted-foreground tracking-wide" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                            <span key={j} className="text-[10px] px-2 py-0.5 bg-secondary text-muted-foreground tracking-wide" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                               {tag.tag}
                             </span>
                           ))}
@@ -168,7 +215,7 @@ export default async function AboutPage() {
                 <Link
                   href={about.data.advertise_cta_link.url ?? "/anuncie"}
                   className="flex items-center justify-center gap-2 border border-primary text-primary hover:bg-primary hover:text-white py-2.5 px-5 text-sm font-bold tracking-wide transition-colors"
-                  style={{ fontFamily: "'Oswald', sans-serif" }}
+                  style={{ fontFamily: "var(--font-oswald), sans-serif" }}
                 >
                   {about.data.advertise_cta_label || "ANUNCIE CONOSCO"} <ChevronRight className="w-4 h-4" />
                 </Link>
@@ -177,7 +224,7 @@ export default async function AboutPage() {
                 <Link
                   href={about.data.contact_cta_link.url ?? "/contato"}
                   className="flex items-center justify-center gap-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary py-2.5 px-5 text-sm font-bold tracking-wide transition-colors"
-                  style={{ fontFamily: "'Oswald', sans-serif" }}
+                  style={{ fontFamily: "var(--font-oswald), sans-serif" }}
                 >
                   {about.data.contact_cta_label || "ENTRAR EM CONTATO"}
                 </Link>

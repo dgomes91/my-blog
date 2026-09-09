@@ -1,0 +1,23 @@
+# Danilo Gomes — Central de GTA 6
+
+> Site de notícias em português (pt-BR) dedicado a Grand Theft Auto VI (Rockstar Games).
+> Cobre trailers, o mapa de Leonida e Vice City, os protagonistas Jason e Lucia, a data
+> de lançamento e guias. Conteúdo assinado, com data de publicação e distinção clara
+> entre o que a Rockstar confirmou e o que é especulação.
+
+## Seções
+
+- [Notícias](https://danilogomes.com.br/noticias): últimas notícias e cobertura de trailers de GTA 6
+- [Reviews](https://danilogomes.com.br/reviews): análises com nota e veredito
+- [Listas TOP](https://danilogomes.com.br/top-lista): rankings, tier lists e seleções
+- [Sobre](https://danilogomes.com.br/about): quem edita o site e a política editorial
+
+## Dados estruturados
+
+- Sitemap: https://danilogomes.com.br/sitemap.xml
+- Sitemap de notícias (Google Notícias): https://danilogomes.com.br/news-sitemap.xml
+- Cada artigo expõe JSON-LD `NewsArticle` com autor, `datePublished` e `dateModified`.
+
+## Uso
+
+O conteúdo pode ser citado com atribuição a "Danilo Gomes" e link para a URL original.

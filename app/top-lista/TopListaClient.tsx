@@ -65,7 +65,7 @@ function ListaCard({ article, index }: { article: AdaptedArticle; index: number 
               {article.title}
             </OswaldText>
             <p className="text-sm text-gray-300 max-w-xl hidden md:block">{article.excerpt}</p>
-            <div className="flex items-center gap-3 mt-3 text-xs text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <div className="flex items-center gap-3 mt-3 text-xs text-gray-400" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
               <span className="text-primary font-semibold">{article.author}</span>
               <span>·</span>
               <span>{article.readingMinutes} min de leitura</span>
@@ -82,7 +82,7 @@ function ListaCard({ article, index }: { article: AdaptedArticle; index: number 
             {article.title}
           </OswaldText>
           <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-3">{article.excerpt}</p>
-          <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
             <span className="text-primary font-semibold">{article.author}</span>
             <span>{article.readingMinutes} min · {article.publishedAt}</span>
           </div>
@@ -116,7 +116,7 @@ function ListaRowCard({ article }: { article: AdaptedArticle }) {
           </OswaldText>
           <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 hidden md:block">{article.excerpt}</p>
         </div>
-        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
           <span className="text-primary font-semibold">{article.author}</span>
           <span>·</span>
           <span>{article.publishedAt}</span>
@@ -174,7 +174,7 @@ export default function TopListaClient({
                   Listas TOP
                 </OswaldText>
               </div>
-              <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                 {listas.length} listas publicadas
               </p>
             </div>
@@ -186,7 +186,7 @@ export default function TopListaClient({
                   className={`px-3 py-1.5 text-xs font-bold tracking-wide transition-colors border ${
                     filter === f ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
                   }`}
-                  style={{ fontFamily: "'Oswald', sans-serif" }}
+                  style={{ fontFamily: "var(--font-oswald), sans-serif" }}
                 >
                   {FILTER_LABELS[f]}
                 </button>
@@ -237,7 +237,7 @@ export default function TopListaClient({
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                  <button key={n} onClick={() => setPage(n)} className={`w-9 h-9 text-sm font-bold transition-colors border ${n === page ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:text-foreground hover:border-primary"}`} style={{ fontFamily: "'Oswald', sans-serif" }}>
+                  <button key={n} onClick={() => setPage(n)} className={`w-9 h-9 text-sm font-bold transition-colors border ${n === page ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:text-foreground hover:border-primary"}`} style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
                     {n}
                   </button>
                 ))}

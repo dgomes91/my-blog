@@ -12,14 +12,14 @@ const PullQuote: FC<PullQuoteProps> = ({ slice }) => (
   >
     <blockquote
       className="text-2xl font-bold text-foreground leading-snug"
-      style={{ fontFamily: "'Oswald', sans-serif" }}
+      style={{ fontFamily: "var(--font-oswald), sans-serif" }}
     >
       <PrismicRichText field={slice.primary.quote} />
     </blockquote>
     {slice.primary.attribution && (
       <figcaption
         className="mt-3 text-sm text-muted-foreground uppercase tracking-wide"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        style={{ fontFamily: "var(--font-jetbrains), monospace" }}
       >
         — {slice.primary.attribution}
       </figcaption>

@@ -73,7 +73,7 @@ export function DisqusComments({
     <section className="max-w-3xl mx-auto px-4 pb-16">
       <p
         className="text-xs text-muted-foreground mb-4"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        style={{ fontFamily: "var(--font-jetbrains), monospace" }}
       >
         Ao comentar, você concorda com a{" "}
         <Link href="/politica-de-comentarios" className="text-primary hover:text-white underline">

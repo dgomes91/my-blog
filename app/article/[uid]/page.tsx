@@ -9,8 +9,16 @@ import { isFilled } from "@prismicio/client";
 import { OswaldText, TagBadge, ScoreBadge } from "@/app/components";
 import { adaptArticle } from "@/app/lib/article-adapter";
 import { DisqusComments, DisqusCommentCount } from "@/app/components/disqus";
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+import { JsonLd } from "@/app/components/json-ld";
+import {
+  SITE_URL,
+  absoluteUrl,
+  breadcrumbLd,
+  jsonLdGraph,
+  newsArticleLd,
+  pageMetadata,
+  rasterImage,
+} from "@/app/lib/seo";
 
 const FALLBACK_AVATAR = "/placeholder-avatar.svg";
 
@@ -20,18 +28,52 @@ const FORMAT_TAG: Record<string, string> = {
   "Lista TOP": "LISTA",
 };
 
+const FORMAT_SECTION: Record<string, { label: string; path: string }> = {
+  "Notícia": { label: "Notícias", path: "/noticias" },
+  "Review": { label: "Reviews", path: "/reviews" },
+  "Lista TOP": { label: "Listas TOP", path: "/top-lista" },
+};
+
+function articleDates(page: {
+  first_publication_date: string;
+  last_publication_date: string;
+  data: { publish_date_override?: string | null };
+}) {
+  const override = page.data.publish_date_override
+    ? new Date(`${page.data.publish_date_override}T12:00:00Z`).toISOString()
+    : null;
+  return {
+    published: override || page.first_publication_date,
+    modified: page.last_publication_date,
+  };
+}
+
 export async function generateMetadata({ params }: PageProps<"/article/[uid]">): Promise<Metadata> {
   const { uid } = await params;
   const client = createClient();
   const page = await client.getByUID("article", uid).catch(() => null);
   if (!page) return {};
-  return {
-    title: page.data.seo_title || page.data.title || undefined,
-    description: page.data.seo_description || page.data.excerpt || undefined,
-    openGraph: {
-      images: page.data.seo_image?.url ? [page.data.seo_image.url] : page.data.cover_image?.url ? [page.data.cover_image.url] : [],
-    },
-  };
+
+  const article = adaptArticle(page);
+  const { published, modified } = articleDates(page);
+  const section = FORMAT_SECTION[page.data.format ?? "Notícia"] ?? FORMAT_SECTION["Notícia"];
+  const image =
+    rasterImage(page.data.seo_image?.url) ||
+    rasterImage(page.data.cover_image?.url) ||
+    rasterImage(article.coverImageUrl);
+
+  return pageMetadata({
+    title: page.data.seo_title?.trim() || article.title,
+    description: page.data.seo_description?.trim() || article.excerpt,
+    path: `/article/${uid}`,
+    type: "article",
+    images: [image],
+    publishedTime: published,
+    modifiedTime: modified,
+    authors: [article.author],
+    section: section.label,
+    tags: article.tags,
+  });
 }
 
 export default async function ArticlePage({ params }: PageProps<"/article/[uid]">) {
@@ -46,8 +88,40 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
     ? (page.data.author.data as { name?: string | null; avatar?: { url?: string | null } | null; role?: string | null } | undefined)
     : undefined;
 
+  const { published, modified } = articleDates(page);
+  const section = FORMAT_SECTION[page.data.format ?? "Notícia"] ?? FORMAT_SECTION["Notícia"];
+  const ldImage =
+    rasterImage(page.data.seo_image?.url) ||
+    rasterImage(page.data.cover_image?.url) ||
+    rasterImage(article.coverImageUrl);
+  const isReview = page.data.format === "Review";
+
+  const jsonLd = jsonLdGraph(
+    newsArticleLd({
+      path: `/article/${uid}`,
+      headline: article.title,
+      description:
+        page.data.seo_description?.trim() || article.excerpt || article.title,
+      image: ldImage,
+      datePublished: published,
+      dateModified: modified,
+      authorName: article.author,
+      authorUrl: absoluteUrl("/about"),
+      section: section.label,
+      keywords: article.tags,
+      isReview,
+      reviewScore: isReview ? article.reviewScore : undefined,
+    }),
+    breadcrumbLd([
+      { name: "Início", path: "/" },
+      { name: section.label, path: section.path },
+      { name: article.title, path: `/article/${uid}` },
+    ]),
+  );
+
   return (
     <main>
+      <JsonLd json={jsonLd} />
       {/* Header */}
       <div className="relative w-full h-[380px] md:h-[480px] overflow-hidden">
         <Image src={article.coverImageUrl} alt={article.title} fill className="object-cover" />
@@ -59,12 +133,12 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <TagBadge tag={FORMAT_TAG[page.data.format ?? "Notícia"] ?? "NOTÍCIA"} />
             {article.breaking && (
-              <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                 URGENTE
               </span>
             )}
             {page.data.early_access && (
-              <span className="text-[10px] font-bold tracking-widest bg-yellow-500 text-black px-2 py-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              <span className="text-[10px] font-bold tracking-widest bg-yellow-500 text-black px-2 py-0.5" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                 EARLY ACCESS
               </span>
             )}
@@ -75,7 +149,7 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
           </OswaldText>
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-6">{article.excerpt}</p>
 
-          <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-border text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-border text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
             <Image
               src={authorData?.avatar?.url || FALLBACK_AVATAR}
               alt={authorData?.name || article.author}
@@ -92,14 +166,14 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
               <MessageSquare className="w-3 h-3" />
               <DisqusCommentCount identifier={uid} url={articleUrl} />
             </span>
-            <span>{article.publishedAt}</span>
+            <time dateTime={published}>{article.publishedAt}</time>
           </div>
 
           {article.reviewScore !== undefined && (
             <div className="flex items-center gap-4 pt-6">
               <ScoreBadge score={article.reviewScore} size="lg" />
               <div>
-                <p className="text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Nota do Editor</p>
+                <p className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>Nota do Editor</p>
                 {page.data.review_copy_disclosure && (
                   <p className="text-xs text-muted-foreground italic mt-1 max-w-md">{page.data.review_copy_disclosure}</p>
                 )}
@@ -126,7 +200,7 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
             <span
               key={tag}
               className="text-[10px] px-2 py-1 bg-secondary text-muted-foreground tracking-wide uppercase"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              style={{ fontFamily: "var(--font-jetbrains), monospace" }}
             >
               #{tag}
             </span>

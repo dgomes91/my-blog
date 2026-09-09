@@ -20,7 +20,7 @@ const RelatedArticles: FC<RelatedArticlesProps> = ({ slice }) => (
   >
     <h3
       className="text-sm font-bold mb-4 text-foreground uppercase tracking-widest border-l-4 border-primary pl-3"
-      style={{ fontFamily: "'Oswald', sans-serif" }}
+      style={{ fontFamily: "var(--font-oswald), sans-serif" }}
     >
       {slice.primary.heading || "Leia também"}
     </h3>

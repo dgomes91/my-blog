@@ -25,7 +25,7 @@ const Callout: FC<CalloutProps> = ({ slice }) => {
         <Icon className="w-4 h-4 text-foreground" />
         <span
           className="text-xs font-bold uppercase tracking-widest text-foreground"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ fontFamily: "var(--font-jetbrains), monospace" }}
         >
           {slice.primary.title || style.label}
         </span>

@@ -6,3 +6,10 @@
 
 /* 3. Escaneia seus arquivos locais de componentes */
 @source '../**/*.{js,ts,jsx,tsx}';
+
+/* 4. Fontes carregadas via next/font (layout.tsx expõe as variáveis no <html>). */
+@theme inline {
+  --font-sans: var(--font-mulish), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "JetBrains Mono", monospace;
+  --font-display: var(--font-oswald), "Oswald", sans-serif;
+}

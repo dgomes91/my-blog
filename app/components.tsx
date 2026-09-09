@@ -68,7 +68,7 @@ export function OswaldText({
   as?: React.ElementType;
 }) {
   return (
-    <Tag className={className} style={{ fontFamily: "'Oswald', sans-serif" }}>
+    <Tag className={className} style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
       {children}
     </Tag>
   );
@@ -90,7 +90,7 @@ export function ScoreBadge({ score, size = "md" }: { score: number; size?: "sm" 
   return (
     <div
       className={`${color} text-white font-bold flex items-center justify-center shrink-0 ${dim}`}
-      style={{ fontFamily: "'Oswald', sans-serif" }}
+      style={{ fontFamily: "var(--font-oswald), sans-serif" }}
     >
       {score.toFixed(1)}
     </div>
@@ -114,7 +114,7 @@ export function TagBadge({ tag, className = "" }: { tag: string; className?: str
           ? "bg-violet-600 text-white"
           : "bg-secondary text-muted-foreground"
       } ${className}`}
-      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      style={{ fontFamily: "var(--font-jetbrains), monospace" }}
     >
       {tag}
     </span>
@@ -178,7 +178,7 @@ export function NewsCard({ article }: { article: Article }) {
         )}
       </div>
       <div>
-        <p className="text-xs text-muted-foreground mb-1.5 tracking-wide" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <p className="text-xs text-muted-foreground mb-1.5 tracking-wide" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
           {article.tags[0]?.toUpperCase()}
         </p>
         <OswaldText
@@ -187,7 +187,7 @@ export function NewsCard({ article }: { article: Article }) {
         >
           {article.title}
         </OswaldText>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
           <span className="text-primary font-semibold">{article.author}</span>
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" /> {article.readingMinutes} min
@@ -233,7 +233,7 @@ export function ReviewCard({ article }: { article: Article & { platforms?: strin
         <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-card to-transparent" />
       </div>
       <div className="p-4">
-        <p className="text-xs text-muted-foreground mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <p className="text-xs text-muted-foreground mb-1" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
           {article.platforms && article.platforms.length > 0
             ? article.platforms.join(" / ")
             : `PC ${article.tags.includes("xbox") ? "/ Xbox" : ""}`}
@@ -250,7 +250,7 @@ export function ReviewCard({ article }: { article: Article & { platforms?: strin
             <ScoreBadge score={score} size="sm" />
             <OswaldText as="span" className="text-xs font-bold text-foreground">{verdict}</OswaldText>
           </div>
-          <div className="text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <div className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
             {article.author} · {article.publishedAt}
           </div>
         </div>
@@ -288,7 +288,7 @@ export function SmallNewsCard({ article }: { article: Article }) {
         >
           {article.title}
         </OswaldText>
-        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
           <span className="text-primary font-semibold">{article.author}</span>
           <span>·</span>
           <span>{article.publishedAt}</span>
@@ -319,11 +319,11 @@ export function TrendingSection({
             <div className="flex-1 min-w-0">
               <p
                 className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors"
-                style={{ fontFamily: "'Oswald', sans-serif" }}
+                style={{ fontFamily: "var(--font-oswald), sans-serif" }}
               >
                 {item.title}
               </p>
-              <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                 <TrendingUp className="w-3 h-3" />
                 <span>{item.views} views</span>
               </div>
@@ -378,13 +378,13 @@ export function Newsletter({
             required
             placeholder="seu@email.com"
             className="bg-secondary border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary transition-colors placeholder:text-muted-foreground w-full"
-            style={{ fontFamily: "'Mulish', sans-serif" }}
+            style={{ fontFamily: "var(--font-mulish), sans-serif" }}
           />
           <button
             type="submit"
             disabled={pending}
             className="bg-primary hover:bg-red-700 text-white font-bold text-sm tracking-wider py-2 px-4 transition-colors disabled:opacity-60"
-            style={{ fontFamily: "'Oswald', sans-serif" }}
+            style={{ fontFamily: "var(--font-oswald), sans-serif" }}
           >
             {pending ? "ENVIANDO…" : buttonLabel}
           </button>
@@ -446,13 +446,13 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
-      <div className="bg-[#0a0a0d] border-b border-border px-4 md:px-8 py-1.5 flex items-center justify-between text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+      <div className="bg-[#0a0a0d] border-b border-border px-4 md:px-8 py-1.5 flex items-center justify-between text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
         <span id='data-atual'>{dataFormatada}</span>
       </div>
 
       <div className="px-4 md:px-8 h-14 flex items-center gap-6">
         <Link href="/" className="shrink-0">
-          <div className="flex items-center gap-0.5" style={{ fontFamily: "'Oswald', sans-serif" }}>
+          <div className="flex items-center gap-0.5" style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
             <span className="text-2xl font-bold text-white tracking-tight">{brandFirst}</span>
             <span className="text-2xl font-bold text-primary tracking-tight">{brandRest}</span>
           </div>
@@ -470,7 +470,7 @@ export function Header({
                     ? "text-primary border-b-2 border-primary"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
-                style={{ fontFamily: "'Oswald', sans-serif" }}
+                style={{ fontFamily: "var(--font-oswald), sans-serif" }}
               >
                 {cat.label.toUpperCase()}
               </Link>
@@ -501,7 +501,7 @@ export function Header({
             type="text"
             placeholder="Pesquisar jogos, análises, guias..."
             className="w-full bg-secondary border border-border text-foreground text-sm px-4 py-2.5 outline-none focus:border-primary transition-colors placeholder:text-muted-foreground"
-            style={{ fontFamily: "'Mulish', sans-serif" }}
+            style={{ fontFamily: "var(--font-mulish), sans-serif" }}
           />
         </div>
       )}
@@ -516,7 +516,7 @@ export function Header({
               className={`text-sm font-bold px-2 py-2 tracking-wider transition-colors ${
                 pathname.startsWith(cat.path) ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
-              style={{ fontFamily: "'Oswald', sans-serif" }}
+              style={{ fontFamily: "var(--font-oswald), sans-serif" }}
             >
               {cat.label.toUpperCase()}
             </Link>
@@ -584,7 +584,7 @@ export function Footer({
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center gap-0.5 mb-4" style={{ fontFamily: "'Oswald', sans-serif" }}>
+            <div className="flex items-center gap-0.5 mb-4" style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
               <span className="text-xl font-bold text-white">{brandFirst}</span>
               <span className="text-xl font-bold text-primary">{brandRest}</span>
             </div>
@@ -598,7 +598,7 @@ export function Footer({
                     target="_blank"
                     rel="noreferrer"
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    style={{ fontFamily: "var(--font-jetbrains), monospace" }}
                   >
                     {s.platform}
                   </a>
@@ -623,7 +623,7 @@ export function Footer({
             </div>
           ))}
         </div>
-        <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
           <p>© {new Date().getFullYear()} {siteName || "Danilo Gomes"}. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4">
             {legal.map((l) => (
