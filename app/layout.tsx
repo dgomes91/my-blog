@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Oswald, JetBrains_Mono, Mulish } from "next/font/google";
 import "./styles/index.css";
-import { Footer, Header } from "./components";
 import { ReaderRevenue } from "./components/reader-revenue";
 import { ConsentModeDefault, PrivacyMessaging } from "./components/consent";
 import { getSiteSettings, getSiteSettingsData } from "./lib/queries";
@@ -12,6 +12,7 @@ import {
   organizationLd,
   websiteLd,
 } from "./lib/seo";
+import { HTML_LANG, localeFromPathname } from "./lib/i18n";
 import { ADSENSE_CLIENT } from "./components/ads";
 import { repositoryName } from "@/prismicio";
 import { Analytics } from "@vercel/analytics/next";
@@ -72,19 +73,10 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getSiteSettingsData(await getSiteSettings());
   const base = baseMetadata();
-
-  const title = settings?.seo_default_title?.trim();
-  const description = settings?.seo_default_description?.trim();
-  const ogImage = settings?.seo_default_image?.url ?? undefined;
 
   return {
     ...base,
-    ...(title
-      ? { title: { default: title, template: `%s · ${base.applicationName}` } }
-      : {}),
-    ...(description ? { description } : {}),
     ...(GOOGLE_SITE_VERIFICATION || BING_SITE_VERIFICATION
       ? {
           verification: {
@@ -99,24 +91,12 @@ export async function generateMetadata(): Promise<Metadata> {
     manifest: "/manifest.json",
     appleWebApp: {
       capable: true,
-      title: settings?.site_name?.trim() || "Danilo Gomes",
+      title: "Danilo Gomes",
       statusBarStyle: "black-translucent",
     },
     other: {
       "msapplication-TileColor": "#0e0e11",
       "msapplication-config": "/browserconfig.xml",
-    },
-    openGraph: {
-      ...base.openGraph,
-      ...(title ? { title } : {}),
-      ...(description ? { description } : {}),
-      ...(ogImage ? { images: [ogImage] } : {}),
-    },
-    twitter: {
-      ...base.twitter,
-      ...(title ? { title } : {}),
-      ...(description ? { description } : {}),
-      ...(ogImage ? { images: [ogImage] } : {}),
     },
   };
 }
@@ -126,6 +106,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // O layout de `[locale]` fica abaixo deste (root) e não repassa `params`
+  // pra cá — usamos o pathname propagado pelo proxy (`x-pathname`) só pra
+  // decidir o `<html lang>` correto em cada request.
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const lang = localeFromPathname(pathname);
+
   const siteSettingsDoc = await getSiteSettings();
   const siteSettings = getSiteSettingsData(siteSettingsDoc);
 
@@ -134,7 +120,7 @@ export default async function RootLayout({
     .filter((u): u is string => !!u && /^https?:\/\//.test(u));
 
   return (
-    <html lang="pt-BR" className={FONT_VARS}>
+    <html lang={HTML_LANG[lang]} className={FONT_VARS}>
       {/* Consent Mode v2 default — precisa vir antes de GA/AdSense */}
       <ConsentModeDefault />
       <Analytics />
@@ -151,14 +137,12 @@ export default async function RootLayout({
         <JsonLd json={jsonLdGraph(organizationLd, websiteLd(sameAs))} />
         <PrivacyMessaging />
         <ReaderRevenue />
-        <Header siteSettings={siteSettings} />
         {children}
         {/* Script do Prismic otimizado pelo Next.js */}
         <Script
           src={`https://static.cdn.prismic.io/prismic.js?new=true&repo=${repositoryName}`}
           strategy="afterInteractive"
         />
-        <Footer siteSettings={siteSettings} />
       </body>
     </html>
   );

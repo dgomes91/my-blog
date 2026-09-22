@@ -1,10 +1,16 @@
 import { createClient } from "@/prismicio";
 import { Content } from "@prismicio/client";
+import { DEFAULT_LOCALE, type Locale } from "./i18n";
 
 /**
  * Camada de queries do Prismic. Toda página que precisa de conteúdo real
  * passa por aqui em vez de chamar o client diretamente — mantém as
  * consultas (filtros, orderings, fetchLinks) num único lugar.
+ *
+ * Todo documento (article/page/homepage/about/site_settings/game/author) tem
+ * uma versão por `Locale`. Sem `lang` explícito, a Content API busca em todas
+ * as línguas (`lang: "*"`) — por isso toda função aqui recebe `lang` e
+ * default pra `DEFAULT_LOCALE` (pt-br), nunca deixando o parâmetro implícito.
  */
 
 const FORMAT_TO_LABEL = {
@@ -32,11 +38,16 @@ function isNoContentError(err: unknown): boolean {
 
 export async function getArticlesByFormat(
   format: LegacyFormat,
-  { limit = 20, page = 1 }: { limit?: number; page?: number } = {},
+  {
+    limit = 20,
+    page = 1,
+    lang = DEFAULT_LOCALE,
+  }: { limit?: number; page?: number; lang?: Locale } = {},
 ): Promise<{ results: Content.ArticleDocument[] }> {
   const client = createClient();
   try {
     return await client.getByType<Content.ArticleDocument>("article", {
+      lang,
       filters: [`[at(my.article.format, "${FORMAT_TO_LABEL[format]}")]`],
       orderings: [
         { field: "document.first_publication_date", direction: "desc" },
@@ -52,10 +63,12 @@ export async function getArticlesByFormat(
 
 export async function getAllArticles({
   limit = 100,
-}: { limit?: number } = {}): Promise<Content.ArticleDocument[]> {
+  lang = DEFAULT_LOCALE,
+}: { limit?: number; lang?: Locale } = {}): Promise<Content.ArticleDocument[]> {
   const client = createClient();
   try {
     return await client.getAllByType<Content.ArticleDocument>("article", {
+      lang,
       orderings: [
         { field: "document.first_publication_date", direction: "desc" },
       ],
@@ -67,10 +80,13 @@ export async function getAllArticles({
   }
 }
 
-export async function getFeaturedArticle(): Promise<Content.ArticleDocument | null> {
+export async function getFeaturedArticle(
+  lang: Locale = DEFAULT_LOCALE,
+): Promise<Content.ArticleDocument | null> {
   const client = createClient();
   try {
     return await client.getFirst<Content.ArticleDocument>({
+      lang,
       filters: [`[at(my.article.featured, true)]`],
       orderings: [{ field: "document.first_publication_date", direction: "desc" }],
     });
@@ -80,6 +96,7 @@ export async function getFeaturedArticle(): Promise<Content.ArticleDocument | nu
   try {
     // Cai pro mais recente.
     return await client.getFirst<Content.ArticleDocument>({
+      lang,
       orderings: [{ field: "document.first_publication_date", direction: "desc" }],
     });
   } catch {
@@ -88,30 +105,30 @@ export async function getFeaturedArticle(): Promise<Content.ArticleDocument | nu
   }
 }
 
-export async function getArticleByUid(uid: string) {
+export async function getArticleByUid(uid: string, lang: Locale = DEFAULT_LOCALE) {
   const client = createClient();
-  return client.getByUID<Content.ArticleDocument>("article", uid);
+  return client.getByUID<Content.ArticleDocument>("article", uid, { lang });
 }
 
-export async function getHomepage() {
+export async function getHomepage(lang: Locale = DEFAULT_LOCALE) {
   const client = createClient();
-  return client.getSingle<Content.HomepageDocument>("homepage");
+  return client.getSingle<Content.HomepageDocument>("homepage", { lang });
 }
 
-export async function getAboutPage() {
+export async function getAboutPage(lang: Locale = DEFAULT_LOCALE) {
   const client = createClient();
-  return client.getSingle<Content.AboutDocument>("about");
+  return client.getSingle<Content.AboutDocument>("about", { lang });
 }
 
-export async function getPageByUid(uid: string) {
+export async function getPageByUid(uid: string, lang: Locale = DEFAULT_LOCALE) {
   const client = createClient();
-  return client.getByUID<Content.PageDocument>("page", uid);
+  return client.getByUID<Content.PageDocument>("page", uid, { lang });
 }
 
-export async function getSiteSettings() {
+export async function getSiteSettings(lang: Locale = DEFAULT_LOCALE) {
   const client = createClient();
   try {
-    return await client.getSingle<Content.SiteSettingsDocument>("site_settings");
+    return await client.getSingle<Content.SiteSettingsDocument>("site_settings", { lang });
   } catch {
     // Documento `site_settings` ainda não publicado — as páginas tratam o
     // `null` e caem nos fallbacks de nav/rodapé/newsletter.
@@ -146,12 +163,12 @@ export function getTrendingTopics(
   }));
 }
 
-export async function getGameByUid(uid: string) {
+export async function getGameByUid(uid: string, lang: Locale = DEFAULT_LOCALE) {
   const client = createClient();
-  return client.getByUID<Content.GameDocument>("game", uid);
+  return client.getByUID<Content.GameDocument>("game", uid, { lang });
 }
 
-export async function getAuthorByUid(uid: string) {
+export async function getAuthorByUid(uid: string, lang: Locale = DEFAULT_LOCALE) {
   const client = createClient();
-  return client.getByUID<Content.AuthorDocument>("author", uid);
+  return client.getByUID<Content.AuthorDocument>("author", uid, { lang });
 }

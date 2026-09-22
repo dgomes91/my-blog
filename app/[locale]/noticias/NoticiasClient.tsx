@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, Eye, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   NewsCard,
   SmallNewsCard,
@@ -12,9 +13,10 @@ import {
   SectionTitle,
   OswaldText,
   TagBadge,
-} from "../components";
-import type { AdaptedArticle } from "../lib/article-adapter";
-import type { SiteSettingsData, TrendingItem } from "../lib/queries";
+} from "@/app/components";
+import type { AdaptedArticle } from "@/app/lib/article-adapter";
+import type { SiteSettingsData, TrendingItem } from "@/app/lib/queries";
+import { CATEGORY_PATH, localeFromPathname, t, withLocale } from "@/app/lib/i18n";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -29,6 +31,8 @@ export default function NoticiasClient({
   trending: TrendingItem[];
   siteSettings?: SiteSettingsData;
 }) {
+  const lang = localeFromPathname(usePathname());
+  const ui = t(lang);
   const [page, setPage] = useState(1);
   const featured = noticias[0];
   const rest = noticias.slice(1);
@@ -44,18 +48,18 @@ export default function NoticiasClient({
             <div className="flex items-center gap-2 mb-1">
               <div className="w-1 h-6 bg-primary" />
               <OswaldText as="h1" className="text-3xl md:text-4xl font-bold text-foreground tracking-wide uppercase">
-                Notícias
+                {ui.navNews}
               </OswaldText>
             </div>
             <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-              {noticias.length} artigos publicados
+              {noticias.length} {ui.articlesPublishedSuffix}
             </p>
           </div>
           <nav className="hidden md:flex items-center gap-1 border border-border">
             {[
-              { label: "Notícias", active: true, path: "/noticias" },
-              { label: "Reviews", active: false, path: "/reviews" },
-              { label: "Listas TOP", active: false, path: "/top-lista" },
+              { label: ui.navNews, active: true, path: CATEGORY_PATH[lang].news },
+              { label: "Reviews", active: false, path: CATEGORY_PATH[lang].reviews },
+              { label: ui.topListsHeading, active: false, path: CATEGORY_PATH[lang].topLists },
             ].map((tab) => (
               <Link
                 href={tab.path}
@@ -77,7 +81,7 @@ export default function NoticiasClient({
       {/* Featured article */}
       {featured && (
         <Link
-          href={`/article/${featured.slug}`}
+          href={withLocale(lang, `/article/${featured.slug}`)}
           className="relative w-full h-80 md:h-[440px] overflow-hidden group cursor-pointer block"
         >
           <Image
@@ -92,10 +96,10 @@ export default function NoticiasClient({
             {featured.breaking && (
               <div className="inline-flex items-center gap-1.5 bg-primary text-white text-xs font-bold px-3 py-1 mb-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                URGENTE
+                {ui.breaking}
               </div>
             )}
-            <TagBadge tag="NOTÍCIA" className="mb-3 block" />
+            <TagBadge tag={ui.tagNews} className="mb-3 block" />
             <OswaldText as="h2" className="text-2xl md:text-4xl font-bold text-white leading-tight mb-3">
               {featured.title}
             </OswaldText>
@@ -115,7 +119,7 @@ export default function NoticiasClient({
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10">
           <div>
-            <SectionTitle>Todas as Notícias</SectionTitle>
+            <SectionTitle>{ui.allNews}</SectionTitle>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {pageItems.slice(0, 3).map((a) => (
@@ -170,7 +174,7 @@ export default function NoticiasClient({
             <AdPlaceholder className="h-64" />
             <Newsletter siteSettings={siteSettings} />
             <div>
-              <SectionTitle href="/reviews">Últimas Reviews</SectionTitle>
+              <SectionTitle href={CATEGORY_PATH[lang].reviews}>{ui.latestReviewsSideTitle}</SectionTitle>
               <div className="space-y-0">
                 {latestReviews.map((a) => (
                   <SmallNewsCard key={a.slug} article={a} />

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { Clock, Eye, MessageSquare, Star, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import {
   NewsCard,
   ReviewCard,
@@ -12,8 +14,8 @@ import {
   OswaldText,
   TagBadge,
   ScoreBadge,
-} from "./components";
-import { adaptArticle, adaptArticles } from "./lib/article-adapter";
+} from "@/app/components";
+import { adaptArticle, adaptArticles } from "@/app/lib/article-adapter";
 import {
   getArticlesByFormat,
   getAllArticles,
@@ -22,21 +24,49 @@ import {
   getSiteSettings,
   getSiteSettingsData,
   getTrendingTopics,
-} from "./lib/queries";
+} from "@/app/lib/queries";
 import { createClient } from "@/prismicio";
 import { Content, isFilled } from "@prismicio/client";
+import { CATEGORY_PATH, isLocale, t, withLocale } from "@/app/lib/i18n";
+import { pageMetadata } from "@/app/lib/seo";
 
-export default async function Home() {
+export async function generateMetadata({ params }: PageProps<"/[locale]">): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const lang = locale;
+  const ui = t(lang);
+  const title =
+    lang === "en-us"
+      ? "GTA 6 news, reviews and guides"
+      : "Notícias, análises e guias de GTA 6";
+  const description =
+    lang === "en-us"
+      ? "The latest GTA 6 news, trailer breakdowns, reviews, and top lists, updated continuously."
+      : "As últimas notícias, análise de trailers, reviews e listas TOP de GTA 6, atualizadas continuamente.";
+  return pageMetadata({
+    title,
+    description,
+    path: withLocale(lang, "/"),
+    lang,
+    translations: { "pt-br": "/", "en-us": "/en-us" },
+  });
+}
+
+export default async function Home({ params }: PageProps<"/[locale]">) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const lang = locale;
+  const ui = t(lang);
   const client = createClient();
 
   const [homepage, siteSettingsDoc, latestNewsRes, latestReviewsRes, latestListasRes, allArticles] =
     await Promise.all([
-      getHomepage().catch(() => null),
-      getSiteSettings(),
-      getArticlesByFormat("noticias", { limit: 3 }),
-      getArticlesByFormat("reviews", { limit: 6 }),
-      getArticlesByFormat("listas-top", { limit: 2 }),
-      getAllArticles({ limit: 12 }),
+      getHomepage(lang).catch(() => null),
+      getSiteSettings(lang),
+      getArticlesByFormat("noticias", { limit: 3, lang }),
+      getArticlesByFormat("reviews", { limit: 6, lang }),
+      getArticlesByFormat("listas-top", { limit: 2, lang }),
+      getAllArticles({ limit: 12, lang }),
     ]);
   const siteSettings = getSiteSettingsData(siteSettingsDoc);
 
@@ -46,18 +76,19 @@ export default async function Home() {
       .getByID<Content.ArticleDocument>(homepage.data.hero_override.id)
       .catch(() => null);
   }
-  if (!heroDoc) heroDoc = await getFeaturedArticle();
+  if (!heroDoc) heroDoc = await getFeaturedArticle(lang);
 
-  const featured = heroDoc ? adaptArticle(heroDoc) : null;
-  const latestNews = adaptArticles(latestNewsRes.results);
-  const latestReviewsAll = adaptArticles(latestReviewsRes.results);
+  const featured = heroDoc ? adaptArticle(heroDoc, lang) : null;
+  const latestNews = adaptArticles(latestNewsRes.results, lang);
+  const latestReviewsAll = adaptArticles(latestReviewsRes.results, lang);
   const latestReviews = latestReviewsAll.slice(0, 3);
   const featuredReview = latestReviewsAll.filter((a) => a.reviewScore && a.reviewScore >= 9)[1];
-  const latestListas = adaptArticles(latestListasRes.results);
+  const latestListas = adaptArticles(latestListasRes.results, lang);
   const moreNews = adaptArticles(
     allArticles.filter((a) => a.uid !== heroDoc?.uid).slice(0, 4),
+    lang,
   );
-  const breaking = adaptArticles(allArticles).find((a) => a.breaking);
+  const breaking = adaptArticles(allArticles, lang).find((a) => a.breaking);
 
   const trending = getTrendingTopics(siteSettings);
 
@@ -69,15 +100,15 @@ export default async function Home() {
             (a): a is typeof a & { uid: string; data: { title?: string | null } } =>
               isFilled.contentRelationship(a) && !!a.data,
           )
-          .map((a) => ({ slug: a.uid, title: a.data.title?.trim() || "Matéria em destaque" }))
-      : moreNews.slice(0, 3).map((a) => ({ slug: a.slug, title: a.title || "Matéria em destaque" }));
+          .map((a) => ({ slug: a.uid, title: a.data.title?.trim() || ui.readingPickFallback }))
+      : moreNews.slice(0, 3).map((a) => ({ slug: a.slug, title: a.title || ui.readingPickFallback }));
 
   return (
     <>
       {/* Hero */}
       {featured && (
         <section className="relative w-full h-[520px] md:h-[600px] overflow-hidden group cursor-pointer">
-          <Link href={`/article/${featured.slug}`} className="contents">
+          <Link href={withLocale(lang, `/article/${featured.slug}`)} className="contents">
             <Image
               src={featured.coverImageUrl}
               alt={featured.title}
@@ -89,7 +120,7 @@ export default async function Home() {
 
             <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 max-w-3xl">
               <div className="flex items-center gap-3 mb-3">
-                <TagBadge tag={featured.category === "reviews" ? "ANÁLISE" : "NOTÍCIA"} />
+                <TagBadge tag={featured.category === "reviews" ? ui.tagReview : ui.tagNews} />
                 {featured.reviewScore !== undefined && (
                   <div className="flex items-center gap-1.5 bg-primary px-2 py-0.5">
                     <Star className="w-3 h-3 text-white fill-white" />
@@ -121,10 +152,10 @@ export default async function Home() {
       {allArticles.length === 0 && (
         <section className="max-w-7xl mx-auto px-4 md:px-8 py-20 text-center">
           <OswaldText as="h1" className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            Nenhum artigo publicado ainda
+            {ui.noArticlesTitle}
           </OswaldText>
           <p className="text-sm text-muted-foreground">
-            Publique um artigo no Prismic e ele aparece aqui automaticamente.
+            {ui.noArticlesBody}
           </p>
         </section>
       )}
@@ -132,12 +163,12 @@ export default async function Home() {
       {/* Breaking strip */}
       {breaking && (
         <Link
-          href={`/article/${breaking.slug}`}
+          href={withLocale(lang, `/article/${breaking.slug}`)}
           className="bg-primary px-4 md:px-8 py-2 flex items-center gap-3 overflow-hidden cursor-pointer"
         >
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <OswaldText as="span" className="font-bold text-white text-xs tracking-widest">URGENTE</OswaldText>
+            <OswaldText as="span" className="font-bold text-white text-xs tracking-widest">{ui.breaking}</OswaldText>
           </div>
           <div className="w-px h-4 bg-white/30" />
           <p className="text-white text-xs font-medium truncate">{breaking.title}</p>
@@ -152,7 +183,7 @@ export default async function Home() {
           <div>
             {/* Latest news */}
             <section className="mb-12">
-              <SectionTitle href="/noticias">Últimas Notícias</SectionTitle>
+              <SectionTitle href={CATEGORY_PATH[lang].news}>{ui.latestNews}</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {latestNews.map((a) => (
                   <NewsCard key={a.slug} article={a} />
@@ -162,7 +193,7 @@ export default async function Home() {
 
             {/* Reviews */}
             <section className="mb-12">
-              <SectionTitle href="/reviews">Análises Recentes</SectionTitle>
+              <SectionTitle href={CATEGORY_PATH[lang].reviews}>{ui.recentReviews}</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {latestReviews.map((r) => (
                   <ReviewCard key={r.slug} article={r} />
@@ -174,14 +205,14 @@ export default async function Home() {
             {featuredReview && featuredReview.reviewScore !== undefined && (
               <section className="mb-12">
                 <Link
-                  href={`/article/${featuredReview.slug}`}
+                  href={withLocale(lang, `/article/${featuredReview.slug}`)}
                   className="relative overflow-hidden bg-card border border-border group cursor-pointer block"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-[1fr_280px]">
                     <div className="p-6 md:p-8 flex flex-col justify-center">
                       <div className="flex items-center gap-3 mb-3">
                         <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-                          ANÁLISE EM DESTAQUE
+                          {ui.featuredReviewLabel}
                         </span>
                       </div>
                       <OswaldText
@@ -196,8 +227,8 @@ export default async function Home() {
                       <div className="flex items-center gap-4">
                         <ScoreBadge score={featuredReview.reviewScore} size="lg" />
                         <div>
-                          <p className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>Nota do Editor</p>
-                          <OswaldText as="p" className="font-bold text-sm text-foreground">ACLAMADO UNIVERSALMENTE</OswaldText>
+                          <p className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>{ui.editorScore}</p>
+                          <OswaldText as="p" className="font-bold text-sm text-foreground">{ui.universallyAcclaimed}</OswaldText>
                         </div>
                       </div>
                     </div>
@@ -217,12 +248,12 @@ export default async function Home() {
 
             {/* Listas TOP */}
             <section className="mb-12">
-              <SectionTitle href="/top-lista">Listas TOP</SectionTitle>
+              <SectionTitle href={CATEGORY_PATH[lang].topLists}>{ui.topListsHeading}</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {latestListas.map((a) => (
                   <Link
                     key={a.slug}
-                    href={`/article/${a.slug}`}
+                    href={withLocale(lang, `/article/${a.slug}`)}
                     className="group cursor-pointer bg-card border border-border overflow-hidden hover:border-primary/40 transition-colors block"
                   >
                     <div className="relative overflow-hidden bg-secondary aspect-video">
@@ -233,7 +264,7 @@ export default async function Home() {
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <div className="absolute top-2 left-2"><TagBadge tag="LISTA" /></div>
+                      <div className="absolute top-2 left-2"><TagBadge tag={ui.tagList} /></div>
                       <div className="absolute bottom-0 left-0 right-0 p-4">
                         <OswaldText as="h3" className="text-lg font-bold text-white leading-snug group-hover:text-primary transition-colors line-clamp-2">
                           {a.title}
@@ -248,17 +279,17 @@ export default async function Home() {
                 ))}
               </div>
               <Link
-                href="/top-lista"
+                href={CATEGORY_PATH[lang].topLists}
                 className="mt-4 flex items-center justify-center gap-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary py-3 text-sm font-bold tracking-wide transition-colors w-full"
                 style={{ fontFamily: "var(--font-oswald), sans-serif" }}
               >
-                VER TODAS AS LISTAS <ChevronRight className="w-4 h-4" />
+                {ui.viewAllLists} <ChevronRight className="w-4 h-4" />
               </Link>
             </section>
 
             {/* More news */}
             <section>
-              <SectionTitle href="/noticias">Mais Notícias</SectionTitle>
+              <SectionTitle href={CATEGORY_PATH[lang].news}>{ui.moreNews}</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
                 {moreNews.map((a) => (
                   <SmallNewsCard key={a.slug} article={a} />
@@ -273,10 +304,10 @@ export default async function Home() {
             <AdPlaceholder className="h-64" />
             <Newsletter siteSettings={siteSettings} />
             <div>
-              <SectionTitle>Para Ler Depois</SectionTitle>
+              <SectionTitle>{ui.readLater}</SectionTitle>
               <div className="space-y-3">
                 {readingPicks.map((a) => (
-                  <Link key={a.slug} href={`/article/${a.slug}`} className="flex items-start gap-3 group cursor-pointer">
+                  <Link key={a.slug} href={withLocale(lang, `/article/${a.slug}`)} className="flex items-start gap-3 group cursor-pointer">
                     <div className="w-1 h-4 bg-border group-hover:bg-primary transition-colors shrink-0 mt-0.5" />
                     <OswaldText
                       as="p"

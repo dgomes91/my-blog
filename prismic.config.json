@@ -1,25 +1,15 @@
 {
   "repositoryName": "56a5a6cc",
   "routes": [
-    {
-      "type": "about",
-      "path": "/about"
-    },
-    {
-      "type": "article",
-      "path": "/article/:uid"
-    },
-    {
-      "type": "homepage",
-      "path": "/"
-    },
-    {
-      "type": "page",
-      "path": "/:uid"
-    },
-    {
-      "type": "site_settings",
-      "path": "/site-settings"
-    }
+    { "type": "about", "lang": "pt-br", "path": "/about" },
+    { "type": "about", "lang": "en-us", "path": "/en-us/about" },
+    { "type": "article", "lang": "pt-br", "path": "/article/:uid" },
+    { "type": "article", "lang": "en-us", "path": "/en-us/article/:uid" },
+    { "type": "homepage", "lang": "pt-br", "path": "/" },
+    { "type": "homepage", "lang": "en-us", "path": "/en-us" },
+    { "type": "page", "lang": "pt-br", "path": "/:uid" },
+    { "type": "page", "lang": "en-us", "path": "/en-us/:uid" },
+    { "type": "site_settings", "lang": "pt-br", "path": "/site-settings" },
+    { "type": "site_settings", "lang": "en-us", "path": "/en-us/site-settings" }
   ]
 }

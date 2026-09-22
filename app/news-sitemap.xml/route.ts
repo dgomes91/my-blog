@@ -1,6 +1,7 @@
 import { createClient } from "@/prismicio";
 import type { Content } from "@prismicio/client";
 import { SITE_URL, SITE_NAME } from "../lib/seo";
+import { NEWS_LANG, localeFromDocLang, withLocale } from "../lib/i18n";
 
 // Sitemap específico do Google Notícias: só artigos das últimas 48h.
 // https://support.google.com/news/publisher-center/answer/9606710
@@ -23,6 +24,7 @@ export async function GET() {
   try {
     const client = createClient();
     const all = await client.getAllByType<Content.ArticleDocument>("article", {
+      lang: "*",
       orderings: [
         { field: "document.first_publication_date", direction: "desc" },
       ],
@@ -45,12 +47,14 @@ export async function GET() {
         a.data.publish_date_override || a.first_publication_date,
       ).toISOString();
       const title = xmlEscape((a.data.title || "").trim() || a.uid);
+      const lang = localeFromDocLang(a.lang);
+      const loc = `${SITE_URL}${withLocale(lang, `/article/${a.uid}`)}`;
       return `  <url>
-    <loc>${SITE_URL}/article/${a.uid}</loc>
+    <loc>${loc}</loc>
     <news:news>
       <news:publication>
         <news:name>${xmlEscape(SITE_NAME)}</news:name>
-        <news:language>pt</news:language>
+        <news:language>${NEWS_LANG[lang]}</news:language>
       </news:publication>
       <news:publication_date>${published}</news:publication_date>
       <news:title>${title}</news:title>

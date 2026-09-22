@@ -1,4 +1,5 @@
 import { Content, asImageSrc, isFilled } from "@prismicio/client";
+import { DEFAULT_LOCALE, HTML_LANG, type Locale } from "./i18n";
 
 /**
  * Formato plano consumido pelos componentes de card (NewsCard, ReviewCard,
@@ -33,21 +34,31 @@ export type AdaptedArticle = Article & {
   listType?: string;
 };
 
-const MESES = [
-  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
-];
-
 const FALLBACK_COVER_IMAGE = "/placeholder-cover.svg";
-const FALLBACK_TITLE = "Artigo sem título";
-const FALLBACK_EXCERPT = "Confira mais detalhes desta matéria em breve.";
-const FALLBACK_AUTHOR = "Redação";
+const FALLBACKS: Record<Locale, { title: string; excerpt: string; author: string }> = {
+  "pt-br": {
+    title: "Artigo sem título",
+    excerpt: "Confira mais detalhes desta matéria em breve.",
+    author: "Redação",
+  },
+  "en-us": {
+    title: "Untitled article",
+    excerpt: "More details on this story coming soon.",
+    author: "Staff",
+  },
+};
 
-function formatDate(iso: string | null | undefined): string {
+function formatDate(iso: string | null | undefined, lang: Locale): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return `${String(d.getDate()).padStart(2, "0")} ${MESES[d.getMonth()]} ${d.getFullYear()}`;
+  return new Intl.DateTimeFormat(HTML_LANG[lang], {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  })
+    .format(d)
+    .replace(/\.$/, "");
 }
 
 const FORMAT_TO_CATEGORY: Record<string, Article["category"]> = {
@@ -58,6 +69,7 @@ const FORMAT_TO_CATEGORY: Record<string, Article["category"]> = {
 
 export function adaptArticle(
   doc: Content.ArticleDocument,
+  lang: Locale = DEFAULT_LOCALE,
 ): AdaptedArticle {
   // `article.author` e `article.game` são Content Relationships com campos
   // selecionados no modelo — a Content API já devolve `.data` populado, sem
@@ -75,21 +87,22 @@ export function adaptArticle(
       }
     | undefined;
 
+  const fallback = FALLBACKS[lang];
   const publishedAt =
-    formatDate(doc.data.publish_date_override) ||
-    formatDate(doc.first_publication_date);
+    formatDate(doc.data.publish_date_override, lang) ||
+    formatDate(doc.first_publication_date, lang);
 
   return {
     slug: doc.uid,
-    title: doc.data.title?.trim() || FALLBACK_TITLE,
-    excerpt: doc.data.excerpt?.trim() || FALLBACK_EXCERPT,
+    title: doc.data.title?.trim() || fallback.title,
+    excerpt: doc.data.excerpt?.trim() || fallback.excerpt,
     coverImageUrl:
       asImageSrc(doc.data.cover_image) ||
       asImageSrc(gameData?.cover_image) ||
       FALLBACK_COVER_IMAGE,
     category: FORMAT_TO_CATEGORY[doc.data.format ?? "Notícia"] ?? "noticias",
     gameSlug: (game && "uid" in game ? game.uid : "") ?? "",
-    author: authorData?.name?.trim() || FALLBACK_AUTHOR,
+    author: authorData?.name?.trim() || fallback.author,
     breaking: doc.data.breaking ?? false,
     publishedAt,
     readingMinutes: doc.data.reading_minutes ?? 5,
@@ -103,6 +116,9 @@ export function adaptArticle(
   };
 }
 
-export function adaptArticles(docs: Content.ArticleDocument[]): AdaptedArticle[] {
-  return docs.map(adaptArticle);
+export function adaptArticles(
+  docs: Content.ArticleDocument[],
+  lang: Locale = DEFAULT_LOCALE,
+): AdaptedArticle[] {
+  return docs.map((d) => adaptArticle(d, lang));
 }

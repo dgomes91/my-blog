@@ -8,35 +8,66 @@ import type { Article } from "./lib/article-adapter";
 import type { SiteSettingsData } from "./lib/queries";
 import { subscribeToNewsletter } from "./lib/newsletter";
 import { AdUnit } from "./components/ads";
+import {
+  CATEGORY_PATH,
+  HTML_LANG,
+  localeFromPathname,
+  t,
+  withLocale,
+  type Locale,
+} from "./lib/i18n";
 
 type NewsletterState = { status: "idle" | "success" | "error"; message?: string };
+
+/** Deduz o locale atual a partir da URL — todo componente aqui é client. */
+function useLocale(): Locale {
+  return localeFromPathname(usePathname());
+}
 
 // Fallbacks usados só enquanto `site_settings.primary_nav` / `footer_nav` não
 // estão populados no Prismic (ver scripts/prismic-model-setup.sh). São rotas
 // reais do app, não dados mockados.
-const DEFAULT_NAV = [
-  { label: "Notícias", path: "/noticias" },
-  { label: "Reviews", path: "/reviews" },
-  { label: "Listas TOP", path: "/top-lista" },
-];
+function defaultNav(lang: Locale) {
+  const ui = t(lang);
+  const cat = CATEGORY_PATH[lang];
+  return [
+    { label: ui.navNews, path: cat.news },
+    { label: "Reviews", path: cat.reviews },
+    { label: ui.topListsHeading, path: cat.topLists },
+  ];
+}
 
-const DEFAULT_FOOTER_COLUMNS = [
-  {
-    title: "Conteúdo",
-    links: [
-      { label: "Notícias", path: "/noticias" },
-      { label: "Reviews", path: "/reviews" },
-      { label: "Listas TOP", path: "/top-lista" },
-    ],
-  },
-  {
-    title: "Institucional",
-    links: [
-      { label: "Sobre", path: "/about" },
-      { label: "Anuncie", path: "/anuncie" },
-    ],
-  },
-];
+function defaultFooterColumns(lang: Locale) {
+  const ui = t(lang);
+  const cat = CATEGORY_PATH[lang];
+  return [
+    {
+      title: ui.contentColumn,
+      links: [
+        { label: ui.navNews, path: cat.news },
+        { label: "Reviews", path: cat.reviews },
+        { label: ui.topListsHeading, path: cat.topLists },
+      ],
+    },
+    {
+      title: ui.institutionalColumn,
+      links: [
+        { label: ui.navAbout, path: withLocale(lang, "/about") },
+        { label: ui.navAdvertise, path: withLocale(lang, "/advertise") },
+      ],
+    },
+  ];
+}
+
+/**
+ * `site_settings.footer_nav[].column` é um campo Select — as opções do
+ * schema são fixas e compartilhadas entre locales (em pt-br). O rótulo
+ * exibido é traduzido aqui na renderização, sem depender de mudar o modelo.
+ */
+const COLUMN_LABEL: Record<Locale, Record<string, string>> = {
+  "pt-br": {},
+  "en-us": { "Conteúdo": "Content", Jogos: "Games", Institucional: "Institutional", Legal: "Legal" },
+};
 
 type NavLink = { label: string; path: string };
 
@@ -130,6 +161,7 @@ export function SectionTitle({
   children: React.ReactNode;
   href?: string;
 }) {
+  const lang = useLocale();
   return (
     <div className="flex items-center justify-between mb-5">
       <OswaldText
@@ -143,7 +175,7 @@ export function SectionTitle({
           href={href}
           className="flex items-center gap-1 text-xs text-primary hover:text-white transition-colors font-semibold tracking-wide"
         >
-          Ver Tudo <ChevronRight className="w-3 h-3" />
+          {t(lang).seeAll} <ChevronRight className="w-3 h-3" />
         </Link>
       )}
     </div>
@@ -153,14 +185,16 @@ export function SectionTitle({
 // ─── News card ─────────────────────────────────────────────────────────────
 
 export function NewsCard({ article }: { article: Article }) {
+  const lang = useLocale();
+  const ui = t(lang);
   const tag =
     article.category === "reviews"
-      ? "ANÁLISE"
+      ? ui.tagReview
       : article.category === "listas-top"
-      ? "LISTA"
-      : "NOTÍCIA";
+      ? ui.tagList
+      : ui.tagNews;
   return (
-    <Link href={`/article/${article.slug}`} className="group cursor-pointer block">
+    <Link href={withLocale(lang, `/article/${article.slug}`)} className="group cursor-pointer block">
       <div className="relative overflow-hidden bg-secondary aspect-video mb-3">
         <Image
           src={article.coverImageUrl}
@@ -206,21 +240,21 @@ export function NewsCard({ article }: { article: Article }) {
 
 // ─── Review card ───────────────────────────────────────────────────────────
 
+const VERDICT: Record<Locale, string[]> = {
+  // ordem: obra-prima, aclamado, excelente, bom, mediano
+  "pt-br": ["OBRA-PRIMA", "ACLAMADO", "EXCELENTE", "BOM", "MEDIANO"],
+  "en-us": ["MASTERPIECE", "ACCLAIMED", "EXCELLENT", "GOOD", "AVERAGE"],
+};
+
 export function ReviewCard({ article }: { article: Article & { platforms?: string[] } }) {
+  const lang = useLocale();
   const score = article.reviewScore ?? 0;
+  const [masterpiece, acclaimed, excellent, good, average] = VERDICT[lang];
   const verdict =
-    score >= 9.5
-      ? "OBRA-PRIMA"
-      : score >= 9
-      ? "ACLAMADO"
-      : score >= 8
-      ? "EXCELENTE"
-      : score >= 7
-      ? "BOM"
-      : "MEDIANO";
+    score >= 9.5 ? masterpiece : score >= 9 ? acclaimed : score >= 8 ? excellent : score >= 7 ? good : average;
   return (
     <Link
-      href={`/article/${article.slug}`}
+      href={withLocale(lang, `/article/${article.slug}`)}
       className="group cursor-pointer bg-card border border-border overflow-hidden hover:border-primary/40 transition-colors block"
     >
       <div className="relative overflow-hidden bg-secondary aspect-[5/3]">
@@ -265,15 +299,17 @@ export function ReviewCard({ article }: { article: Article & { platforms?: strin
 // ─── Small news card ───────────────────────────────────────────────────────
 
 export function SmallNewsCard({ article }: { article: Article }) {
+  const lang = useLocale();
+  const ui = t(lang);
   const tag =
     article.category === "reviews"
-      ? "ANÁLISE"
+      ? ui.tagReview
       : article.category === "listas-top"
-      ? "LISTA"
-      : "NOTÍCIA";
+      ? ui.tagList
+      : ui.tagNews;
   return (
     <Link
-      href={`/article/${article.slug}`}
+      href={withLocale(lang, `/article/${article.slug}`)}
       className="flex gap-3 group cursor-pointer py-3 border-b border-border last:border-0"
     >
       <div className="relative w-24 h-16 shrink-0 overflow-hidden bg-secondary">
@@ -311,11 +347,12 @@ export function TrendingSection({
 }: {
   items?: { id: number | string; rank: number; title: string; views: string }[];
 } = {}) {
+  const lang = useLocale();
   const list = items ?? [];
   if (list.length === 0) return null;
   return (
     <aside>
-      <SectionTitle>Em Alta</SectionTitle>
+      <SectionTitle>{t(lang).trending}</SectionTitle>
       <ol className="space-y-0 divide-y divide-border">
         {list.map((item) => (
           <li key={item.id} className="flex items-start gap-4 py-3.5 group cursor-pointer">
@@ -352,11 +389,11 @@ export function Newsletter({
     newsletter_button_label?: string | null;
   } | null;
 } = {}) {
-  const heading = siteSettings?.newsletter_heading || "Newsletter GTA 6";
-  const subtext =
-    siteSettings?.newsletter_subtext ||
-    "Toda semana, o que há de novo sobre GTA 6 no seu e-mail: trailers, rumores confirmados e contagem regressiva.";
-  const buttonLabel = siteSettings?.newsletter_button_label || "INSCREVER-SE";
+  const lang = useLocale();
+  const ui = t(lang);
+  const heading = siteSettings?.newsletter_heading || ui.newsletterHeadingDefault;
+  const subtext = siteSettings?.newsletter_subtext || ui.newsletterSubtextDefault;
+  const buttonLabel = siteSettings?.newsletter_button_label || ui.subscribe;
 
   const initial: NewsletterState = { status: "idle" };
   const [state, formAction, pending] = useActionState(subscribeToNewsletter, initial);
@@ -374,15 +411,16 @@ export function Newsletter({
       </p>
       {state.status === "success" ? (
         <p className="text-primary font-semibold text-sm">
-          {state.message || "Inscrito com sucesso!"}
+          {state.message || ui.subscribedDefault}
         </p>
       ) : (
         <form action={formAction} className="flex flex-col gap-2">
+          <input type="hidden" name="lang" value={lang} />
           <input
             type="email"
             name="email"
             required
-            placeholder="seu@email.com"
+            placeholder={ui.emailPlaceholder}
             className="bg-secondary border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary transition-colors placeholder:text-muted-foreground w-full"
             style={{ fontFamily: "var(--font-mulish), sans-serif" }}
           />
@@ -392,7 +430,7 @@ export function Newsletter({
             className="bg-primary hover:bg-red-700 text-white font-bold text-sm tracking-wider py-2 px-4 transition-colors disabled:opacity-60"
             style={{ fontFamily: "var(--font-oswald), sans-serif" }}
           >
-            {pending ? "ENVIANDO…" : buttonLabel}
+            {pending ? ui.sending : buttonLabel}
           </button>
           {state.status === "error" && state.message && (
             <p className="text-red-500 text-xs">{state.message}</p>
@@ -428,6 +466,8 @@ export function Header({
   siteSettings?: SiteSettingsData | null;
 } = {}) {
   const pathname = usePathname();
+  const lang = useLocale();
+  const ui = t(lang);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -435,18 +475,20 @@ export function Header({
   const [brandFirst, ...brandRestArr] = siteName ? siteName.split(" ") : ["DANILO", "GOMES"];
   const brandRest = brandRestArr.join(" ") || (siteName ? "" : "GOMES");
 
-  const nav = navFromSettings(siteSettings?.primary_nav) ?? DEFAULT_NAV;
+  const nav = navFromSettings(siteSettings?.primary_nav) ?? defaultNav(lang);
+  const otherLocale: Locale = lang === "pt-br" ? "en-us" : "pt-br";
+  const langSwitchHref = otherLocale === "pt-br" ? "/" : "/en-us";
 
   const hoje = new Date();
   // Configura o formato com dia da semana longo e data longa
-  const opcoes: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+  const opcoes: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
   };
   // Formata a data e isola o resultado
-  let dataFormatada = hoje.toLocaleDateString('pt-BR', opcoes);
+  let dataFormatada = hoje.toLocaleDateString(HTML_LANG[lang], opcoes);
   // Capitaliza a primeira letra do dia da semana (ex: "terça-feira" vira "Terça-feira")
   dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
 
@@ -457,7 +499,7 @@ export function Header({
       </div>
 
       <div className="px-4 md:px-8 h-14 flex items-center gap-6">
-        <Link href="/" className="shrink-0">
+        <Link href={withLocale(lang, "/")} className="shrink-0">
           <div className="flex items-center gap-0.5" style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
             <span className="text-2xl font-bold text-white tracking-tight">{brandFirst}</span>
             <span className="text-2xl font-bold text-primary tracking-tight">{brandRest}</span>
@@ -485,6 +527,13 @@ export function Header({
         </nav>
 
         <div className="flex items-center gap-2 ml-auto md:ml-0">
+          <Link
+            href={langSwitchHref}
+            className="px-2 py-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors tracking-wide"
+            style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+          >
+            {otherLocale === "pt-br" ? "PT" : "EN"}
+          </Link>
           <button
             onClick={() => setSearchOpen(!searchOpen)}
             className="p-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -505,7 +554,7 @@ export function Header({
           <input
             autoFocus
             type="text"
-            placeholder="Pesquisar jogos, análises, guias..."
+            placeholder={ui.searchPlaceholder}
             className="w-full bg-secondary border border-border text-foreground text-sm px-4 py-2.5 outline-none focus:border-primary transition-colors placeholder:text-muted-foreground"
             style={{ fontFamily: "var(--font-mulish), sans-serif" }}
           />
@@ -558,27 +607,36 @@ function footerColumnsFromSettings(
   return ordered.map((title) => ({ title, links: byColumn.get(title)! }));
 }
 
-const DEFAULT_LEGAL_LINKS: NavLink[] = [
-  { label: "Privacidade", path: "/politica-de-privacidade" },
-  { label: "Termos", path: "/termos-de-uso" },
-  { label: "Cookies", path: "/politica-de-cookies" },
-  { label: "Comentários", path: "/politica-de-comentarios" },
-];
+function defaultLegalLinks(lang: Locale): NavLink[] {
+  return lang === "pt-br"
+    ? [
+        { label: "Privacidade", path: "/politica-de-privacidade" },
+        { label: "Termos", path: "/termos-de-uso" },
+        { label: "Cookies", path: "/politica-de-cookies" },
+        { label: "Comentários", path: "/politica-de-comentarios" },
+      ]
+    : [
+        { label: "Privacy", path: "/en-us/privacy-policy" },
+        { label: "Terms", path: "/en-us/terms-of-use" },
+        { label: "Cookies", path: "/en-us/cookie-policy" },
+        { label: "Comments", path: "/en-us/comment-policy" },
+      ];
+}
 
 export function Footer({
   siteSettings,
 }: {
   siteSettings?: SiteSettingsData | null;
 } = {}) {
+  const lang = useLocale();
+  const ui = t(lang);
   const siteName = siteSettings?.site_name;
   const [brandFirst, ...brandRestArr] = siteName ? siteName.split(" ") : ["DANILO", "GOMES"];
   const brandRest = brandRestArr.join(" ") || (siteName ? "" : "GOMES");
-  const tagline =
-    siteSettings?.tagline?.trim() ||
-    "Cobertura dedicada a Grand Theft Auto VI — notícias, trailers, teorias e guias.";
+  const tagline = siteSettings?.tagline?.trim() || ui.footerTaglineDefault;
 
-  const allColumns = footerColumnsFromSettings(siteSettings?.footer_nav) ?? DEFAULT_FOOTER_COLUMNS;
-  const legal = allColumns.find((c) => c.title === "Legal")?.links ?? DEFAULT_LEGAL_LINKS;
+  const allColumns = footerColumnsFromSettings(siteSettings?.footer_nav) ?? defaultFooterColumns(lang);
+  const legal = allColumns.find((c) => c.title === "Legal")?.links ?? defaultLegalLinks(lang);
   const columns = allColumns.filter((c) => c.title !== "Legal");
 
   const social = (siteSettings?.social_links ?? [])
@@ -615,7 +673,7 @@ export function Footer({
           {columns.map((col) => (
             <div key={col.title}>
               <OswaldText as="h4" className="text-sm font-bold tracking-wider text-foreground mb-3 uppercase">
-                {col.title}
+                {COLUMN_LABEL[lang][col.title] ?? col.title}
               </OswaldText>
               <ul className="space-y-2">
                 {col.links.map((l) => (
@@ -630,7 +688,7 @@ export function Footer({
           ))}
         </div>
         <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-          <p>© {new Date().getFullYear()} {siteName || "Danilo Gomes"}. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} {siteName || "Danilo Gomes"}. {ui.rightsReserved}</p>
           <div className="flex items-center gap-4">
             {legal.map((l) => (
               <Link key={l.label} href={l.path} className="hover:text-foreground transition-colors">

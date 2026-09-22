@@ -11,6 +11,14 @@ import { adaptArticle } from "@/app/lib/article-adapter";
 import { DisqusComments, DisqusCommentCount } from "@/app/components/disqus";
 import { JsonLd } from "@/app/components/json-ld";
 import {
+  isLocale,
+  withLocale,
+  t,
+  CATEGORY_PATH,
+  localeFromDocLang,
+  type Locale,
+} from "@/app/lib/i18n";
+import {
   SITE_URL,
   absoluteUrl,
   breadcrumbLd,
@@ -22,17 +30,20 @@ import {
 
 const FALLBACK_AVATAR = "/placeholder-avatar.svg";
 
-const FORMAT_TAG: Record<string, string> = {
-  "Notícia": "NOTÍCIA",
-  "Review": "ANÁLISE",
-  "Lista TOP": "LISTA",
-};
-
-const FORMAT_SECTION: Record<string, { label: string; path: string }> = {
-  "Notícia": { label: "Notícias", path: "/noticias" },
-  "Review": { label: "Reviews", path: "/reviews" },
-  "Lista TOP": { label: "Listas TOP", path: "/top-lista" },
-};
+function formatSections(lang: Locale) {
+  const ui = t(lang);
+  const FORMAT_TAG: Record<string, string> = {
+    "Notícia": ui.tagNews,
+    "Review": ui.tagReview,
+    "Lista TOP": ui.tagList,
+  };
+  const FORMAT_SECTION: Record<string, { label: string; path: string }> = {
+    "Notícia": { label: ui.navNews, path: CATEGORY_PATH[lang].news },
+    "Review": { label: "Reviews", path: CATEGORY_PATH[lang].reviews },
+    "Lista TOP": { label: ui.topListsHeading, path: CATEGORY_PATH[lang].topLists },
+  };
+  return { FORMAT_TAG, FORMAT_SECTION };
+}
 
 function articleDates(page: {
   first_publication_date: string;
@@ -48,13 +59,16 @@ function articleDates(page: {
   };
 }
 
-export async function generateMetadata({ params }: PageProps<"/article/[uid]">): Promise<Metadata> {
-  const { uid } = await params;
+export async function generateMetadata({ params }: PageProps<"/[locale]/article/[uid]">): Promise<Metadata> {
+  const { locale, uid } = await params;
+  if (!isLocale(locale)) notFound();
+  const lang = locale;
   const client = createClient();
-  const page = await client.getByUID("article", uid).catch(() => null);
+  const page = await client.getByUID("article", uid, { lang }).catch(() => null);
   if (!page) return {};
 
-  const article = adaptArticle(page);
+  const { FORMAT_SECTION } = formatSections(lang);
+  const article = adaptArticle(page, lang);
   const { published, modified } = articleDates(page);
   const section = FORMAT_SECTION[page.data.format ?? "Notícia"] ?? FORMAT_SECTION["Notícia"];
   const image =
@@ -62,10 +76,20 @@ export async function generateMetadata({ params }: PageProps<"/article/[uid]">):
     rasterImage(page.data.cover_image?.url) ||
     rasterImage(article.coverImageUrl);
 
+  const path = withLocale(lang, `/article/${uid}`);
+  const translations: Partial<Record<Locale, string>> = { [lang]: path };
+  const sibling = page.alternate_languages?.[0];
+  if (sibling?.uid) {
+    const siblingLang = localeFromDocLang(sibling.lang);
+    translations[siblingLang] = withLocale(siblingLang, `/article/${sibling.uid}`);
+  }
+
   return pageMetadata({
     title: page.data.seo_title?.trim() || article.title,
     description: page.data.seo_description?.trim() || article.excerpt,
-    path: `/article/${uid}`,
+    path,
+    lang,
+    translations,
     type: "article",
     images: [image],
     publishedTime: published,
@@ -76,14 +100,18 @@ export async function generateMetadata({ params }: PageProps<"/article/[uid]">):
   });
 }
 
-export default async function ArticlePage({ params }: PageProps<"/article/[uid]">) {
-  const { uid } = await params;
+export default async function ArticlePage({ params }: PageProps<"/[locale]/article/[uid]">) {
+  const { locale, uid } = await params;
+  if (!isLocale(locale)) notFound();
+  const lang = locale;
+  const ui = t(lang);
   const client = createClient();
-  const page = await client.getByUID("article", uid).catch(() => null);
+  const page = await client.getByUID("article", uid, { lang }).catch(() => null);
   if (!page) notFound();
 
-  const article = adaptArticle(page);
-  const articleUrl = `${SITE_URL}/article/${uid}`;
+  const { FORMAT_TAG, FORMAT_SECTION } = formatSections(lang);
+  const article = adaptArticle(page, lang);
+  const articleUrl = `${SITE_URL}${withLocale(lang, `/article/${uid}`)}`;
   const authorData = isFilled.contentRelationship(page.data.author)
     ? (page.data.author.data as { name?: string | null; avatar?: { url?: string | null } | null; role?: string | null } | undefined)
     : undefined;
@@ -98,7 +126,7 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
 
   const jsonLd = jsonLdGraph(
     newsArticleLd({
-      path: `/article/${uid}`,
+      path: withLocale(lang, `/article/${uid}`),
       headline: article.title,
       description:
         page.data.seo_description?.trim() || article.excerpt || article.title,
@@ -106,16 +134,17 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
       datePublished: published,
       dateModified: modified,
       authorName: article.author,
-      authorUrl: absoluteUrl("/about"),
+      authorUrl: absoluteUrl(withLocale(lang, "/about")),
       section: section.label,
       keywords: article.tags,
       isReview,
       reviewScore: isReview ? article.reviewScore : undefined,
+      lang,
     }),
     breadcrumbLd([
-      { name: "Início", path: "/" },
+      { name: ui.navHome, path: withLocale(lang, "/") },
       { name: section.label, path: section.path },
-      { name: article.title, path: `/article/${uid}` },
+      { name: article.title, path: withLocale(lang, `/article/${uid}`) },
     ]),
   );
 
@@ -131,10 +160,10 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
       <div className="max-w-3xl mx-auto px-4 -mt-24 md:-mt-32 relative">
         <div className="bg-card border border-border p-6 md:p-10">
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <TagBadge tag={FORMAT_TAG[page.data.format ?? "Notícia"] ?? "NOTÍCIA"} />
+            <TagBadge tag={FORMAT_TAG[page.data.format ?? "Notícia"] ?? ui.tagNews} />
             {article.breaking && (
               <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-                URGENTE
+                {ui.breaking}
               </span>
             )}
             {page.data.early_access && (
@@ -173,7 +202,7 @@ export default async function ArticlePage({ params }: PageProps<"/article/[uid]"
             <div className="flex items-center gap-4 pt-6">
               <ScoreBadge score={article.reviewScore} size="lg" />
               <div>
-                <p className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>Nota do Editor</p>
+                <p className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>{ui.editorScore}</p>
                 {page.data.review_copy_disclosure && (
                   <p className="text-xs text-muted-foreground italic mt-1 max-w-md">{page.data.review_copy_disclosure}</p>
                 )}

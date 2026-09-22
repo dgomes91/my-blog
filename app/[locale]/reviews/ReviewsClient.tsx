@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ReviewCard,
   SmallNewsCard,
@@ -11,14 +12,15 @@ import {
   SectionTitle,
   OswaldText,
   ScoreBadge,
-} from "../components";
-import type { AdaptedArticle } from "../lib/article-adapter";
-import type { SiteSettingsData } from "../lib/queries";
+} from "@/app/components";
+import type { AdaptedArticle } from "@/app/lib/article-adapter";
+import type { SiteSettingsData } from "@/app/lib/queries";
+import { CATEGORY_PATH, localeFromPathname, t, withLocale } from "@/app/lib/i18n";
 
 type SortKey = "recente" | "nota-alta" | "nota-baixa";
 const ITEMS_PER_PAGE = 6;
 
-function ScoreDistribution({ reviews }: { reviews: AdaptedArticle[] }) {
+function ScoreDistribution({ reviews, ui }: { reviews: AdaptedArticle[]; ui: ReturnType<typeof t> }) {
   const bands = [
     { label: "9–10", count: reviews.filter((a) => (a.reviewScore ?? 0) >= 9).length, color: "bg-emerald-500" },
     { label: "8–9", count: reviews.filter((a) => (a.reviewScore ?? 0) >= 8 && (a.reviewScore ?? 0) < 9).length, color: "bg-yellow-500" },
@@ -31,7 +33,7 @@ function ScoreDistribution({ reviews }: { reviews: AdaptedArticle[] }) {
       <div className="flex items-center gap-2 mb-4">
         <div className="w-1 h-5 bg-primary" />
         <OswaldText as="h3" className="text-sm font-bold uppercase tracking-wide">
-          Distribuição de Notas
+          {ui.scoreDistribution}
         </OswaldText>
       </div>
       <div className="space-y-2">
@@ -62,6 +64,8 @@ export default function ReviewsClient({
   latestNews: AdaptedArticle[];
   siteSettings?: SiteSettingsData;
 }) {
+  const lang = localeFromPathname(usePathname());
+  const ui = t(lang);
   const [sort, setSort] = useState<SortKey>("recente");
   const [page, setPage] = useState(1);
 
@@ -89,12 +93,12 @@ export default function ReviewsClient({
               </OswaldText>
             </div>
             <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-              {reviews.length} análises publicadas
+              {reviews.length} {ui.reviewsPublishedSuffix}
             </p>
           </div>
           <div className="flex items-center gap-0 border border-border">
             {(["recente", "nota-alta", "nota-baixa"] as SortKey[]).map((s) => {
-              const labels: Record<SortKey, string> = { recente: "RECENTES", "nota-alta": "NOTA ↑", "nota-baixa": "NOTA ↓" };
+              const labels: Record<SortKey, string> = { recente: ui.sortRecent, "nota-alta": ui.sortScoreUp, "nota-baixa": ui.sortScoreDown };
               return (
                 <button
                   key={s}
@@ -115,12 +119,12 @@ export default function ReviewsClient({
       {featured && featured.reviewScore !== undefined && (
         <div className="bg-card border-b border-border">
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-0">
-            <Link href={`/article/${featured.slug}`} className="relative overflow-hidden group cursor-pointer block">
+            <Link href={withLocale(lang, `/article/${featured.slug}`)} className="relative overflow-hidden group cursor-pointer block">
               <div className="grid grid-cols-1 md:grid-cols-[1fr_360px]">
                 <div className="p-6 md:p-10 flex flex-col justify-center">
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-[10px] font-bold tracking-widest bg-primary text-white px-2 py-0.5" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-                      ANÁLISE EM DESTAQUE
+                      {ui.featuredReviewLabel}
                     </span>
                     <span className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
                       {featured.publishedAt}
@@ -139,10 +143,10 @@ export default function ReviewsClient({
                         ))}
                       </div>
                       <OswaldText as="p" className="text-xs font-bold text-muted-foreground tracking-wide">
-                        ACLAMADO PELA CRÍTICA
+                        {ui.criticallyAcclaimed}
                       </OswaldText>
                       <p className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-                        por {featured.author}
+                        {ui.byAuthorPrefix} {featured.author}
                       </p>
                     </div>
                   </div>
@@ -160,7 +164,7 @@ export default function ReviewsClient({
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10">
           <div>
-            <SectionTitle>Todas as Análises</SectionTitle>
+            <SectionTitle>{ui.allReviews}</SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {pageItems.slice(0, 4).map((a) => <ReviewCard key={a.slug} article={a} />)}
             </div>
@@ -188,11 +192,11 @@ export default function ReviewsClient({
           </div>
 
           <aside className="space-y-8">
-            <ScoreDistribution reviews={reviews} />
+            <ScoreDistribution reviews={reviews} ui={ui} />
             <AdPlaceholder className="h-64" />
             <Newsletter siteSettings={siteSettings} />
             <div>
-              <SectionTitle href="/noticias">Últimas Notícias</SectionTitle>
+              <SectionTitle href={CATEGORY_PATH[lang].news}>{ui.latestNews}</SectionTitle>
               <div>
                 {latestNews.map((a) => <SmallNewsCard key={a.slug} article={a} />)}
               </div>

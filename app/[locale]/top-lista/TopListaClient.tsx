@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Trophy, List } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   TrendingSection,
   Newsletter,
@@ -11,9 +12,10 @@ import {
   OswaldText,
   TagBadge,
   SmallNewsCard,
-} from "../components";
-import type { AdaptedArticle } from "../lib/article-adapter";
-import type { SiteSettingsData, TrendingItem } from "../lib/queries";
+} from "@/app/components";
+import type { AdaptedArticle } from "@/app/lib/article-adapter";
+import type { SiteSettingsData, TrendingItem } from "@/app/lib/queries";
+import { CATEGORY_PATH, localeFromPathname, t, withLocale } from "@/app/lib/i18n";
 
 // Fallback pra conteúdo antigo sem list_item_count preenchido no Prismic.
 function extractNumber(title: string): number | null {
@@ -22,12 +24,14 @@ function extractNumber(title: string): number | null {
 }
 
 type FilterKey = "todos" | "tier-list" | "top-10" | "recomendacao";
-const FILTER_LABELS: Record<FilterKey, string> = {
-  todos: "TODOS",
-  "tier-list": "TIER LISTS",
-  "top-10": "TOP N",
-  recomendacao: "RECOMENDAÇÕES",
-};
+function filterLabels(ui: ReturnType<typeof t>): Record<FilterKey, string> {
+  return {
+    todos: ui.filterAll,
+    "tier-list": ui.filterTierList,
+    "top-10": ui.filterTopN,
+    recomendacao: ui.filterRecommendation,
+  };
+}
 const FILTER_TO_LIST_TYPE: Record<Exclude<FilterKey, "todos">, string> = {
   "tier-list": "Tier List",
   "top-10": "Top N",
@@ -35,12 +39,14 @@ const FILTER_TO_LIST_TYPE: Record<Exclude<FilterKey, "todos">, string> = {
 };
 
 function ListaCard({ article, index }: { article: AdaptedArticle; index: number }) {
+  const lang = localeFromPathname(usePathname());
+  const ui = t(lang);
   const itemCount = article.listItemCount ?? extractNumber(article.title);
   const isFirst = index === 0;
 
   return (
     <Link
-      href={`/article/${article.slug}`}
+      href={withLocale(lang, `/article/${article.slug}`)}
       className={`group cursor-pointer bg-card border overflow-hidden hover:border-primary/40 transition-all duration-200 block ${
         isFirst ? "border-primary/30 md:col-span-2" : "border-border"
       }`}
@@ -60,7 +66,7 @@ function ListaCard({ article, index }: { article: AdaptedArticle; index: number 
         )}
         {isFirst && (
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-            <TagBadge tag="LISTA" className="mb-2 block" />
+            <TagBadge tag={ui.tagList} className="mb-2 block" />
             <OswaldText as="h2" className="text-2xl md:text-4xl font-bold text-white leading-tight mb-2 group-hover:text-primary transition-colors">
               {article.title}
             </OswaldText>
@@ -68,7 +74,7 @@ function ListaCard({ article, index }: { article: AdaptedArticle; index: number 
             <div className="flex items-center gap-3 mt-3 text-xs text-gray-400" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
               <span className="text-primary font-semibold">{article.author}</span>
               <span>·</span>
-              <span>{article.readingMinutes} min de leitura</span>
+              <span>{article.readingMinutes} {ui.minReadSuffix}</span>
               <span>·</span>
               <span>{article.publishedAt}</span>
             </div>
@@ -77,7 +83,7 @@ function ListaCard({ article, index }: { article: AdaptedArticle; index: number 
       </div>
       {!isFirst && (
         <div className="p-4">
-          <TagBadge tag="LISTA" className="mb-2 block" />
+          <TagBadge tag={ui.tagList} className="mb-2 block" />
           <OswaldText as="h3" className="text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors mb-2">
             {article.title}
           </OswaldText>
@@ -93,9 +99,11 @@ function ListaCard({ article, index }: { article: AdaptedArticle; index: number 
 }
 
 function ListaRowCard({ article }: { article: AdaptedArticle }) {
+  const lang = localeFromPathname(usePathname());
+  const ui = t(lang);
   const itemCount = article.listItemCount ?? extractNumber(article.title);
   return (
-    <Link href={`/article/${article.slug}`} className="group cursor-pointer flex gap-0 bg-card border border-border hover:border-primary/40 transition-colors overflow-hidden">
+    <Link href={withLocale(lang, `/article/${article.slug}`)} className="group cursor-pointer flex gap-0 bg-card border border-border hover:border-primary/40 transition-colors overflow-hidden">
       <div className="relative w-32 md:w-40 shrink-0 overflow-hidden bg-secondary">
         <Image src={article.coverImageUrl} alt={article.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
         {itemCount && (
@@ -103,14 +111,14 @@ function ListaRowCard({ article }: { article: AdaptedArticle }) {
             <div className="text-center">
               <List className="w-5 h-5 text-primary mx-auto mb-0.5" />
               <OswaldText as="span" className="text-2xl font-bold text-white">{itemCount}</OswaldText>
-              <OswaldText as="p" className="text-[9px] font-bold text-primary tracking-widest">ITENS</OswaldText>
+              <OswaldText as="p" className="text-[9px] font-bold text-primary tracking-widest">{ui.itemsLabel}</OswaldText>
             </div>
           </div>
         )}
       </div>
       <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
         <div>
-          <TagBadge tag="LISTA" className="mb-2 block" />
+          <TagBadge tag={ui.tagList} className="mb-2 block" />
           <OswaldText as="h3" className="text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors mb-1">
             {article.title}
           </OswaldText>
@@ -139,6 +147,9 @@ export default function TopListaClient({
   trending: TrendingItem[];
   siteSettings?: SiteSettingsData;
 }) {
+  const lang = localeFromPathname(usePathname());
+  const ui = t(lang);
+  const labels = filterLabels(ui);
   const [filter, setFilter] = useState<FilterKey>("todos");
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -171,15 +182,15 @@ export default function TopListaClient({
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-1 h-6 bg-primary" />
                 <OswaldText as="h1" className="text-3xl md:text-4xl font-bold text-foreground tracking-wide uppercase">
-                  Listas TOP
+                  {ui.topListsHeading}
                 </OswaldText>
               </div>
               <p className="text-sm text-muted-foreground ml-3" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-                {listas.length} listas publicadas
+                {listas.length} {ui.listsPublishedSuffix}
               </p>
             </div>
             <div className="flex items-center gap-1 flex-wrap">
-              {(Object.keys(FILTER_LABELS) as FilterKey[]).map((f) => (
+              {(Object.keys(labels) as FilterKey[]).map((f) => (
                 <button
                   key={f}
                   onClick={() => { setFilter(f); setPage(1); }}
@@ -188,12 +199,12 @@ export default function TopListaClient({
                   }`}
                   style={{ fontFamily: "var(--font-oswald), sans-serif" }}
                 >
-                  {FILTER_LABELS[f]}
+                  {labels[f]}
                 </button>
               ))}
               <div className="flex items-center gap-0 border border-border ml-2">
-                <button onClick={() => setViewMode("grid")} className={`px-3 py-1.5 text-xs transition-colors ${viewMode === "grid" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`} title="Grade">⊞</button>
-                <button onClick={() => setViewMode("list")} className={`px-3 py-1.5 text-xs transition-colors ${viewMode === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`} title="Lista">≡</button>
+                <button onClick={() => setViewMode("grid")} className={`px-3 py-1.5 text-xs transition-colors ${viewMode === "grid" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`} title={ui.gridViewTitle}>⊞</button>
+                <button onClick={() => setViewMode("list")} className={`px-3 py-1.5 text-xs transition-colors ${viewMode === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`} title={ui.listViewTitle}>≡</button>
               </div>
             </div>
           </div>
@@ -205,14 +216,14 @@ export default function TopListaClient({
           <div>
             {featuredList && (
               <div className="mb-10">
-                <SectionTitle>Lista em Destaque</SectionTitle>
+                <SectionTitle>{ui.featuredListHeading}</SectionTitle>
                 <ListaCard article={featuredList} index={0} />
               </div>
             )}
 
             <AdPlaceholder className="h-24 mb-8" />
 
-            <SectionTitle>Todas as Listas</SectionTitle>
+            <SectionTitle>{ui.allListsHeading}</SectionTitle>
 
             {viewMode === "grid" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
@@ -226,8 +237,8 @@ export default function TopListaClient({
 
             {filtered.length === 0 && (
               <div className="text-center py-16 text-muted-foreground">
-                <OswaldText as="p" className="text-2xl font-bold mb-2">Nenhuma lista encontrada</OswaldText>
-                <p className="text-sm">Tente outro filtro.</p>
+                <OswaldText as="p" className="text-2xl font-bold mb-2">{ui.noListsFound}</OswaldText>
+                <p className="text-sm">{ui.tryAnotherFilter}</p>
               </div>
             )}
 
@@ -253,7 +264,7 @@ export default function TopListaClient({
             <AdPlaceholder className="h-64" />
             <Newsletter siteSettings={siteSettings} />
             <div>
-              <SectionTitle href="/reviews">Reviews Recentes</SectionTitle>
+              <SectionTitle href={CATEGORY_PATH[lang].reviews}>{ui.recentReviewsSideTitle}</SectionTitle>
               <div>
                 {latestReviews.map((a) => <SmallNewsCard key={a.slug} article={a} />)}
               </div>

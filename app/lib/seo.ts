@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_LOCALE, HTML_LANG, OG_LOCALE, withLocale, type Locale } from "./i18n";
 
 /**
  * Base de SEO do site. Um único lugar para URL canônica, nome do publisher,
@@ -11,12 +12,25 @@ export const SITE_URL = (
 ).replace(/\/$/, "");
 
 export const SITE_NAME = "Danilo Gomes";
-export const SITE_TAGLINE = "Central de GTA 6";
-export const SITE_LOCALE = "pt_BR";
 
-export const DEFAULT_TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
-export const DEFAULT_DESCRIPTION =
-  "Cobertura dedicada a Grand Theft Auto VI: notícias, análise de trailers, mapa de Leonida, Jason e Lucia, data de lançamento e guias.";
+const SITE_TAGLINE: Record<Locale, string> = {
+  "pt-br": "Central de GTA 6",
+  "en-us": "GTA 6 Hub",
+};
+const DEFAULT_DESCRIPTION_BY_LOCALE: Record<Locale, string> = {
+  "pt-br":
+    "Cobertura dedicada a Grand Theft Auto VI: notícias, análise de trailers, mapa de Leonida, Jason e Lucia, data de lançamento e guias.",
+  "en-us":
+    "Dedicated coverage of Grand Theft Auto VI: news, trailer breakdowns, the Leonida map, Jason and Lucia, release date updates, and guides.",
+};
+
+export function defaultTitle(lang: Locale = DEFAULT_LOCALE): string {
+  return `${SITE_NAME} — ${SITE_TAGLINE[lang]}`;
+}
+export function defaultDescription(lang: Locale = DEFAULT_LOCALE): string {
+  return DEFAULT_DESCRIPTION_BY_LOCALE[lang];
+}
+
 
 /** Logo do publisher usada em JSON-LD (raster, quadrada, servida de /public). */
 export const PUBLISHER_LOGO = `${SITE_URL}/android-icon-192x192.png`;
@@ -36,13 +50,15 @@ export function rasterImage(url: string | null | undefined): string | undefined 
  * Metadata base do site — aplicada no root layout e estendida por cada rota.
  * `metadataBase` faz o Next resolver canonical/OG/twitter para URLs absolutas.
  */
-export function baseMetadata(): Metadata {
+export function baseMetadata(lang: Locale = DEFAULT_LOCALE): Metadata {
+  const title = defaultTitle(lang);
+  const description = defaultDescription(lang);
   return {
     metadataBase: new URL(SITE_URL),
     applicationName: SITE_NAME,
-    title: { default: DEFAULT_TITLE, template: `%s · ${SITE_NAME}` },
-    description: DEFAULT_DESCRIPTION,
-    alternates: { canonical: "/" },
+    title: { default: title, template: `%s · ${SITE_NAME}` },
+    description,
+    alternates: { canonical: withLocale(lang, "/") },
     robots: {
       index: true,
       follow: true,
@@ -57,24 +73,34 @@ export function baseMetadata(): Metadata {
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
-      locale: SITE_LOCALE,
-      url: SITE_URL,
-      title: DEFAULT_TITLE,
-      description: DEFAULT_DESCRIPTION,
+      locale: OG_LOCALE[lang],
+      url: absoluteUrl(withLocale(lang, "/")),
+      title,
+      description,
     },
     twitter: {
       card: "summary_large_image",
-      title: DEFAULT_TITLE,
-      description: DEFAULT_DESCRIPTION,
+      title,
+      description,
     },
   };
 }
+
+/**
+ * `path` das versões traduzidas de uma página (sem prefixo de locale — ex:
+ * `{ "pt-br": "/politica-de-privacidade", "en-us": "/privacy-policy" }`).
+ * Quando informado, `pageMetadata` gera `alternates.languages` (hreflang) e
+ * `x-default` apontando pra versão pt-br.
+ */
+type LocalizedPaths = Partial<Record<Locale, string>>;
 
 /** Monta a metadata de uma página comum (canonical + OG/twitter coerentes). */
 export function pageMetadata(opts: {
   title: string;
   description: string;
   path: string;
+  lang?: Locale;
+  translations?: LocalizedPaths;
   images?: (string | undefined)[];
   type?: "website" | "article";
   publishedTime?: string;
@@ -84,13 +110,27 @@ export function pageMetadata(opts: {
   tags?: string[];
   noindex?: boolean;
 }): Metadata {
+  const lang = opts.lang ?? DEFAULT_LOCALE;
   const url = absoluteUrl(opts.path);
   const images = (opts.images ?? []).filter(Boolean) as string[];
   const imgProp = images.length ? { images } : {}; // vazio → usa o opengraph-image padrão
+
+  const languages = opts.translations
+    ? Object.fromEntries(
+        Object.entries(opts.translations).map(([l, p]) => [
+          l === DEFAULT_LOCALE ? "x-default" : HTML_LANG[l as Locale],
+          absoluteUrl(p!),
+        ]),
+      )
+    : undefined;
+
   return {
     title: opts.title,
     description: opts.description,
-    alternates: { canonical: opts.path },
+    alternates: {
+      canonical: opts.path,
+      ...(languages ? { languages } : {}),
+    },
     ...(opts.authors && opts.authors.length
       ? { authors: opts.authors.map((name) => ({ name })) }
       : {}),
@@ -101,7 +141,7 @@ export function pageMetadata(opts: {
       title: opts.title,
       description: opts.description,
       siteName: SITE_NAME,
-      locale: SITE_LOCALE,
+      locale: OG_LOCALE[lang],
       ...imgProp,
       ...(opts.type === "article"
         ? {
@@ -147,14 +187,14 @@ export const organizationLd: Json = {
   logo: { "@type": "ImageObject", url: PUBLISHER_LOGO, width: 192, height: 192 },
 };
 
-export function websiteLd(sameAs: string[] = []): Json {
+export function websiteLd(sameAs: string[] = [], lang: Locale = DEFAULT_LOCALE): Json {
   return {
     "@type": "WebSite",
     "@id": `${SITE_URL}/#website`,
     url: SITE_URL,
     name: SITE_NAME,
-    inLanguage: "pt-BR",
-    description: DEFAULT_DESCRIPTION,
+    inLanguage: HTML_LANG[lang],
+    description: defaultDescription(lang),
     publisher: { "@id": `${SITE_URL}/#organization` },
     ...(sameAs.length ? { sameAs } : {}),
   };
@@ -164,6 +204,7 @@ export function collectionPageLd(o: {
   path: string;
   name: string;
   description: string;
+  lang?: Locale;
 }): Json {
   return {
     "@type": "CollectionPage",
@@ -171,7 +212,7 @@ export function collectionPageLd(o: {
     url: absoluteUrl(o.path),
     name: o.name,
     description: o.description,
-    inLanguage: "pt-BR",
+    inLanguage: HTML_LANG[o.lang ?? DEFAULT_LOCALE],
     isPartOf: { "@id": `${SITE_URL}/#website` },
   };
 }
@@ -203,6 +244,7 @@ export function newsArticleLd(a: {
   keywords?: string[];
   isReview?: boolean;
   reviewScore?: number;
+  lang?: Locale;
 }): Json {
   const url = absoluteUrl(a.path);
   return {
@@ -214,7 +256,7 @@ export function newsArticleLd(a: {
     ...(a.image ? { image: [a.image] } : {}),
     datePublished: a.datePublished,
     dateModified: a.dateModified,
-    inLanguage: "pt-BR",
+    inLanguage: HTML_LANG[a.lang ?? DEFAULT_LOCALE],
     articleSection: a.section,
     ...(a.keywords && a.keywords.length ? { keywords: a.keywords.join(", ") } : {}),
     author: {

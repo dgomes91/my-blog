@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Shield, Zap, Eye, BookOpen, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { PrismicRichText } from "@prismicio/react";
 import { asText, isFilled } from "@prismicio/client";
-import { OswaldText, AdPlaceholder } from "../components";
-import { getAboutPage } from "../lib/queries";
+import { OswaldText, AdPlaceholder } from "@/app/components";
+import { getAboutPage } from "@/app/lib/queries";
 import { createClient } from "@/prismicio";
 import {
   SITE_NAME,
@@ -15,33 +16,45 @@ import {
   organizationLd,
   pageMetadata,
   rasterImage,
-} from "../lib/seo";
-import { JsonLd } from "../components/json-ld";
+} from "@/app/lib/seo";
+import { JsonLd } from "@/app/components/json-ld";
+import { HTML_LANG, isLocale, t, withLocale } from "@/app/lib/i18n";
 
 const ICONS = { Shield, Zap, Eye, BookOpen } as const;
 const FALLBACK_AVATAR = "/placeholder-avatar.svg";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const about = await getAboutPage().catch(() => null);
+export async function generateMetadata({ params }: PageProps<"/[locale]/about">): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const lang = locale;
+  const ui = t(lang);
+  const about = await getAboutPage(lang).catch(() => null);
   const title =
     about?.data.seo_title?.trim() ||
     about?.data.hero_title?.trim() ||
-    "Sobre";
+    ui.aboutFallbackTitle;
   const description =
     about?.data.seo_description?.trim() ||
     (asText(about?.data.hero_description) || "").slice(0, 200) ||
-    `Quem faz o ${SITE_NAME} e como cobrimos GTA 6.`;
+    ui.aboutFallbackDescription.replace("{site}", SITE_NAME);
   return pageMetadata({
     title,
     description,
-    path: "/about",
+    path: withLocale(lang, "/about"),
+    lang,
+    translations: { "pt-br": "/about", "en-us": "/en-us/about" },
     images: [rasterImage(about?.data.seo_image?.url)],
   });
 }
 
-export default async function AboutPage() {
+export default async function AboutPage({ params }: PageProps<"/[locale]/about">) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const lang = locale;
+  const ui = t(lang);
   const client = createClient();
-  const about = await getAboutPage();
+  const about = await getAboutPage(lang).catch(() => null);
+  if (!about) notFound();
 
   // team_members ainda não tem o campo `author` (Content Relationship) criado no
   // schema real — ver HANDOFF. Enquanto isso não existe, listamos os autores
@@ -54,22 +67,22 @@ export default async function AboutPage() {
   const team: { data: unknown }[] =
     teamFromField.length > 0
       ? teamFromField
-      : await client.getAllByType("author", { limit: 8 }).catch(() => []);
+      : await client.getAllByType("author", { limit: 8, lang }).catch(() => []);
 
   const jsonLd = jsonLdGraph(
     organizationLd,
     {
       "@type": "AboutPage",
-      "@id": `${absoluteUrl("/about")}#webpage`,
-      url: absoluteUrl("/about"),
-      name: about.data.hero_title?.trim() || "Sobre",
-      inLanguage: "pt-BR",
+      "@id": `${absoluteUrl(withLocale(lang, "/about"))}#webpage`,
+      url: absoluteUrl(withLocale(lang, "/about")),
+      name: about.data.hero_title?.trim() || ui.aboutFallbackTitle,
+      inLanguage: HTML_LANG[lang],
       about: { "@id": `${absoluteUrl("/")}#organization` },
       isPartOf: { "@id": `${absoluteUrl("/")}#website` },
     },
     breadcrumbLd([
-      { name: "Início", path: "/" },
-      { name: "Sobre", path: "/about" },
+      { name: ui.navHome, path: withLocale(lang, "/") },
+      { name: ui.navAbout, path: withLocale(lang, "/about") },
     ]),
   );
 
@@ -83,11 +96,11 @@ export default async function AboutPage() {
           <div className="flex items-center gap-2 mb-6">
             <div className="w-1 h-6 bg-primary" />
             <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-              {about.data.hero_label || "Sobre o projeto"}
+              {about.data.hero_label || ui.heroLabelFallback}
             </span>
           </div>
           <OswaldText as="h1" className="text-4xl md:text-6xl font-bold text-foreground leading-tight mb-6">
-            {about.data.hero_title || "Sobre o projeto"}
+            {about.data.hero_title || ui.heroLabelFallback}
           </OswaldText>
           <div className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
             <PrismicRichText field={about.data.hero_description} />
@@ -100,7 +113,7 @@ export default async function AboutPage() {
         {about.data.principles.length > 0 && (
           <section>
             <OswaldText as="h2" className="text-2xl font-bold text-foreground mb-8 uppercase border-l-4 border-primary pl-3">
-              Nossos Princípios
+              {ui.aboutPrinciples}
             </OswaldText>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {about.data.principles.map((v, i) => {
@@ -123,7 +136,7 @@ export default async function AboutPage() {
         {team.length > 0 && (
           <section>
             <OswaldText as="h2" className="text-2xl font-bold text-foreground mb-8 uppercase border-l-4 border-primary pl-3">
-              A Equipe
+              {ui.aboutTeam}
             </OswaldText>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {team.map((member, i) => {
@@ -139,7 +152,7 @@ export default async function AboutPage() {
                     <div className="w-16 h-16 shrink-0 overflow-hidden bg-secondary">
                       <Image
                         src={data.avatar?.url || FALLBACK_AVATAR}
-                        alt={data.name || "Membro da equipe"}
+                        alt={data.name || ui.teamMemberFallback}
                         width={64}
                         height={64}
                         className="w-full h-full object-cover"
@@ -147,10 +160,10 @@ export default async function AboutPage() {
                     </div>
                     <div>
                       <OswaldText as="h3" className="text-lg font-bold text-foreground">
-                        {data.name || "Membro da equipe"}
+                        {data.name || ui.teamMemberFallback}
                       </OswaldText>
                       <p className="text-xs text-primary font-bold mb-2 tracking-wide" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-                        {data.role || "Equipe editorial"}
+                        {data.role || ui.teamRoleFallback}
                       </p>
                       {isFilled.richText(data.bio as never) && (
                         <div className="text-sm text-muted-foreground leading-relaxed mb-3">
@@ -178,7 +191,7 @@ export default async function AboutPage() {
         {about.data.timeline.length > 0 && (
           <section>
             <OswaldText as="h2" className="text-2xl font-bold text-foreground mb-8 uppercase border-l-4 border-primary pl-3">
-              Nossa História
+              {ui.aboutHistory}
             </OswaldText>
             <div className="relative">
               <div className="absolute left-[52px] top-0 bottom-0 w-px bg-border" />
@@ -205,7 +218,7 @@ export default async function AboutPage() {
         {isFilled.richText(about.data.editorial_policy_body) && (
           <section className="bg-card border border-border p-8">
             <OswaldText as="h2" className="text-xl font-bold text-foreground mb-4 uppercase">
-              {about.data.editorial_policy_title || "Política Editorial & Financiamento"}
+              {about.data.editorial_policy_title || ui.aboutEditorialPolicyDefault}
             </OswaldText>
             <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
               <PrismicRichText field={about.data.editorial_policy_body} />
@@ -213,20 +226,20 @@ export default async function AboutPage() {
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               {isFilled.link(about.data.advertise_cta_link) && (
                 <Link
-                  href={about.data.advertise_cta_link.url ?? "/anuncie"}
+                  href={about.data.advertise_cta_link.url ?? withLocale(lang, "/advertise")}
                   className="flex items-center justify-center gap-2 border border-primary text-primary hover:bg-primary hover:text-white py-2.5 px-5 text-sm font-bold tracking-wide transition-colors"
                   style={{ fontFamily: "var(--font-oswald), sans-serif" }}
                 >
-                  {about.data.advertise_cta_label || "ANUNCIE CONOSCO"} <ChevronRight className="w-4 h-4" />
+                  {about.data.advertise_cta_label || ui.advertiseCtaDefault} <ChevronRight className="w-4 h-4" />
                 </Link>
               )}
               {isFilled.link(about.data.contact_cta_link) && (
                 <Link
-                  href={about.data.contact_cta_link.url ?? "/contato"}
+                  href={about.data.contact_cta_link.url ?? withLocale(lang, "/contato")}
                   className="flex items-center justify-center gap-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary py-2.5 px-5 text-sm font-bold tracking-wide transition-colors"
                   style={{ fontFamily: "var(--font-oswald), sans-serif" }}
                 >
-                  {about.data.contact_cta_label || "ENTRAR EM CONTATO"}
+                  {about.data.contact_cta_label || ui.contactCtaDefault}
                 </Link>
               )}
             </div>

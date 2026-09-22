@@ -7,6 +7,14 @@ import { components } from "@/slices";
 import { OswaldText } from "@/app/components";
 import { JsonLd } from "@/app/components/json-ld";
 import {
+  isLocale,
+  withLocale,
+  t,
+  HTML_LANG,
+  localeFromDocLang,
+  type Locale,
+} from "@/app/lib/i18n";
+import {
   absoluteUrl,
   breadcrumbLd,
   jsonLdGraph,
@@ -14,10 +22,12 @@ import {
   rasterImage,
 } from "@/app/lib/seo";
 
-export async function generateMetadata({ params }: PageProps<"/[uid]">): Promise<Metadata> {
-  const { uid } = await params;
+export async function generateMetadata({ params }: PageProps<"/[locale]/[uid]">): Promise<Metadata> {
+  const { locale, uid } = await params;
+  if (!isLocale(locale)) notFound();
+  const lang = locale;
   const client = createClient();
-  const page = await client.getByUID("page", uid).catch(() => null);
+  const page = await client.getByUID("page", uid, { lang }).catch(() => null);
   if (!page) return {};
 
   const title = page.data.seo_title?.trim() || page.data.title?.trim() || uid;
@@ -33,34 +43,47 @@ export async function generateMetadata({ params }: PageProps<"/[uid]">): Promise
     (bodyText || "").slice(0, 200) ||
     title;
 
+  const path = withLocale(lang, `/${uid}`);
+  const translations: Partial<Record<Locale, string>> = { [lang]: path };
+  const sibling = page.alternate_languages?.[0];
+  if (sibling?.uid) {
+    const siblingLang = localeFromDocLang(sibling.lang);
+    translations[siblingLang] = withLocale(siblingLang, `/${sibling.uid}`);
+  }
+
   return pageMetadata({
     title,
     description,
-    path: `/${uid}`,
+    path,
+    lang,
+    translations,
     images: [rasterImage(page.data.seo_image?.url)],
   });
 }
 
-export default async function GenericPage({ params }: PageProps<"/[uid]">) {
-  const { uid } = await params;
+export default async function GenericPage({ params }: PageProps<"/[locale]/[uid]">) {
+  const { locale, uid } = await params;
+  if (!isLocale(locale)) notFound();
+  const lang = locale;
+  const ui = t(lang);
   const client = createClient();
-  const page = await client.getByUID("page", uid).catch(() => null);
+  const page = await client.getByUID("page", uid, { lang }).catch(() => null);
   if (!page) notFound();
 
   const jsonLd = jsonLdGraph(
     {
       "@type": "WebPage",
-      "@id": `${absoluteUrl(`/${uid}`)}#webpage`,
-      url: absoluteUrl(`/${uid}`),
+      "@id": `${absoluteUrl(withLocale(lang, `/${uid}`))}#webpage`,
+      url: absoluteUrl(withLocale(lang, `/${uid}`)),
       name: page.data.title?.trim() || uid,
       ...(page.data.subtitle?.trim() ? { description: page.data.subtitle.trim() } : {}),
-      inLanguage: "pt-BR",
+      inLanguage: HTML_LANG[lang],
       isPartOf: { "@id": `${absoluteUrl("/")}#website` },
       dateModified: page.last_publication_date,
     },
     breadcrumbLd([
-      { name: "Início", path: "/" },
-      { name: page.data.title?.trim() || uid, path: `/${uid}` },
+      { name: ui.navHome, path: withLocale(lang, "/") },
+      { name: page.data.title?.trim() || uid, path: withLocale(lang, `/${uid}`) },
     ]),
   );
 

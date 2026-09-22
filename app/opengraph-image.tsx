@@ -1,7 +1,9 @@
 import { ImageResponse } from "next/og";
-import { SITE_NAME, SITE_TAGLINE } from "./lib/seo";
+import { SITE_NAME, defaultTitle } from "./lib/seo";
 
-export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`;
+const TAGLINE = "CENTRAL DE GTA 6";
+
+export const alt = defaultTitle();
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -32,7 +34,7 @@ export default function OgImage() {
             fontWeight: 700,
           }}
         >
-          {SITE_TAGLINE.toUpperCase()}
+          {TAGLINE}
         </div>
         <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 1.05, marginTop: 16 }}>
           {SITE_NAME}
