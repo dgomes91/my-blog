@@ -25,9 +25,14 @@ export function withLocale(lang: Locale, path: string): string {
   return path === "/" ? "/en-us" : `/en-us${path}`;
 }
 
-/** Dado um pathname (`request.nextUrl.pathname` ou `usePathname()`), deduz o locale. */
-export function localeFromPathname(pathname: string): Locale {
-  return pathname === "/en-us" || pathname.startsWith("/en-us/") ? "en-us" : "pt-br";
+/**
+ * Dado um pathname (`request.nextUrl.pathname` ou `usePathname()`), deduz o
+ * locale. `usePathname()` pode devolver `null` durante a renderização de
+ * boundaries especiais (`not-found.tsx`/`error.tsx`) — nesse caso cai pro
+ * locale padrão em vez de estourar.
+ */
+export function localeFromPathname(pathname: string | null | undefined): Locale {
+  return pathname === "/en-us" || !!pathname?.startsWith("/en-us/") ? "en-us" : "pt-br";
 }
 
 /** Remove o prefixo `/en-us` de um pathname, devolvendo o path "canônico" pt-br. */
@@ -126,6 +131,19 @@ export const UI = {
     heroLabelFallback: "Sobre o projeto",
     readingPickFallback: "Matéria em destaque",
     trendingTopicFallback: "Tema em destaque",
+    notFoundEyebrow: "ERRO 404",
+    notFoundHeading: "Você saiu do mapa de Leonida",
+    notFoundBody:
+      "A página que você procura não existe, mudou de endereço ou foi cancelada antes do lançamento. Nem tudo que é anunciado sai do jeito que a gente espera.",
+    notFoundCta: "Voltar para o início",
+    notFoundBrowseHeading: "Ou navegue por:",
+    errorEyebrow: "ERRO INESPERADO",
+    errorHeading: "Algo travou",
+    errorBody:
+      "Nosso servidor deu um bug tentando carregar essa página. Tente de novo — se persistir, volte pra o início.",
+    errorRetry: "Tentar novamente",
+    errorHome: "Ir para o início",
+    errorDigestLabel: "Código de referência",
   },
   "en-us": {
     navHome: "Home",
@@ -200,6 +218,19 @@ export const UI = {
     heroLabelFallback: "About the project",
     readingPickFallback: "Featured story",
     trendingTopicFallback: "Trending topic",
+    notFoundEyebrow: "404 ERROR",
+    notFoundHeading: "You've wandered off the map",
+    notFoundBody:
+      "The page you're looking for doesn't exist, moved, or got cancelled before launch. Not everything announced ships the way we expect.",
+    notFoundCta: "Back to home",
+    notFoundBrowseHeading: "Or browse:",
+    errorEyebrow: "UNEXPECTED ERROR",
+    errorHeading: "Something crashed",
+    errorBody:
+      "Our server hit a bug trying to load this page. Try again — if it keeps happening, head back home.",
+    errorRetry: "Try again",
+    errorHome: "Go home",
+    errorDigestLabel: "Reference code",
   },
 } as const satisfies Record<Locale, Record<string, string>>;
 
