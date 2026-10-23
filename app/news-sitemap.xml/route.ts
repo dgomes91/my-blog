@@ -9,6 +9,10 @@ import { NEWS_LANG, localeFromDocLang, withLocale } from "../lib/i18n";
 export const revalidate = 300;
 
 const TWO_DAYS_MS = 48 * 60 * 60 * 1000;
+// Pequena tolerância pra relógio/clock skew entre o servidor e o Prismic;
+// evita que um artigo publicado "agora" seja descartado por diferença de
+// alguns segundos. Não existe pra deixar passar datas futuras de verdade.
+const CLOCK_SKEW_MS = 60 * 1000;
 
 function xmlEscape(s: string): string {
   return s
@@ -30,12 +34,21 @@ export async function GET() {
       ],
       limit: 1000,
     });
-    const cutoff = Date.now() - TWO_DAYS_MS;
+    const now = Date.now();
+    const cutoff = now - TWO_DAYS_MS;
     recent = all.filter((a) => {
       const published = new Date(
         a.data.publish_date_override || a.first_publication_date,
       ).getTime();
-      return Number.isFinite(published) && published >= cutoff;
+      // O spec do Google News só quer artigos publicados nas últimas 48h.
+      // Faltava o limite superior: sem ele, um `publish_date_override`
+      // futuro (erro de edição, ou data de embargo) entrava no sitemap antes
+      // da hora, o que o Google pode penalizar como conteúdo inválido.
+      return (
+        Number.isFinite(published) &&
+        published >= cutoff &&
+        published <= now + CLOCK_SKEW_MS
+      );
     });
   } catch {
     // Prismic indisponível — devolve um sitemap vazio, mas válido.
