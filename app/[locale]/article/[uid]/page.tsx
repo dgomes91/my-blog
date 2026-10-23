@@ -5,9 +5,9 @@ import { Clock, MessageSquare } from "lucide-react";
 import type { Metadata } from "next";
 import { createClient } from "@/prismicio";
 import { components } from "@/slices";
-import { isFilled } from "@prismicio/client";
+import { asLink, isFilled, type LinkField } from "@prismicio/client";
 import { OswaldText, TagBadge, ScoreBadge } from "@/app/components";
-import { adaptArticle } from "@/app/lib/article-adapter";
+import { adaptArticle, extractFaqPairs } from "@/app/lib/article-adapter";
 import { DisqusComments, DisqusCommentCount } from "@/app/components/disqus";
 import { JsonLd } from "@/app/components/json-ld";
 import {
@@ -22,6 +22,7 @@ import {
   SITE_URL,
   absoluteUrl,
   breadcrumbLd,
+  faqPageLd,
   jsonLdGraph,
   newsArticleLd,
   pageMetadata,
@@ -113,8 +114,19 @@ export default async function ArticlePage({ params }: PageProps<"/[locale]/artic
   const article = adaptArticle(page, lang);
   const articleUrl = `${SITE_URL}${withLocale(lang, `/article/${uid}`)}`;
   const authorData = isFilled.contentRelationship(page.data.author)
-    ? (page.data.author.data as { name?: string | null; avatar?: { url?: string | null } | null; role?: string | null } | undefined)
+    ? (page.data.author.data as {
+        name?: string | null;
+        avatar?: { url?: string | null } | null;
+        role?: string | null;
+        social_links?: { platform?: string | null; url?: LinkField | null }[] | null;
+      } | undefined)
     : undefined;
+
+  // `sameAs` do autor: só as URLs reais já cadastradas no documento `author`
+  // do Prismic (social_links) — nunca inventadas.
+  const authorSameAs = (authorData?.social_links ?? [])
+    .map((link) => (link.url ? asLink(link.url) : undefined))
+    .filter((url): url is string => !!url);
 
   const { published, modified } = articleDates(page);
   const section = FORMAT_SECTION[page.data.format ?? "Notícia"] ?? FORMAT_SECTION["Notícia"];
@@ -123,6 +135,12 @@ export default async function ArticlePage({ params }: PageProps<"/[locale]/artic
     rasterImage(page.data.cover_image?.url) ||
     rasterImage(article.coverImageUrl);
   const isReview = page.data.format === "Review";
+
+  // FAQ (GEO/AEO): extraída do conteúdo visível dos slices `rich_text` — ver
+  // `extractFaqPairs`. Se o artigo não tiver seção de FAQ, retorna [] e o
+  // node FAQPage simplesmente não entra no @graph.
+  const faqPairs = extractFaqPairs(page.data.slices);
+  const faqNode = faqPageLd(faqPairs, withLocale(lang, `/article/${uid}`));
 
   const jsonLd = jsonLdGraph(
     newsArticleLd({
@@ -135,6 +153,7 @@ export default async function ArticlePage({ params }: PageProps<"/[locale]/artic
       dateModified: modified,
       authorName: article.author,
       authorUrl: absoluteUrl(withLocale(lang, "/about")),
+      authorSameAs: authorSameAs.length ? authorSameAs : undefined,
       section: section.label,
       keywords: article.tags,
       isReview,
@@ -146,6 +165,7 @@ export default async function ArticlePage({ params }: PageProps<"/[locale]/artic
       { name: section.label, path: section.path },
       { name: article.title, path: withLocale(lang, `/article/${uid}`) },
     ]),
+    ...(faqNode ? [faqNode] : []),
   );
 
   return (

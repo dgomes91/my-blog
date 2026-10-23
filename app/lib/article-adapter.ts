@@ -1,4 +1,10 @@
-import { Content, asImageSrc, isFilled } from "@prismicio/client";
+import {
+  Content,
+  asImageSrc,
+  isFilled,
+  type RTNode,
+  type RTParagraphNode,
+} from "@prismicio/client";
 import { DEFAULT_LOCALE, HTML_LANG, type Locale } from "./i18n";
 
 /**
@@ -121,4 +127,104 @@ export function adaptArticles(
   lang: Locale = DEFAULT_LOCALE,
 ): AdaptedArticle[] {
   return docs.map((d) => adaptArticle(d, lang));
+}
+
+// ─── FAQ extraction (GEO/AEO) ───────────────────────────────────────────────
+/**
+ * Extrai pares pergunta/resposta de uma seção "Perguntas frequentes" / "FAQ"
+ * dentro dos slices `rich_text` de um artigo, SEM depender de um slice de FAQ
+ * dedicado no Prismic (não existe hoje — ver nota no plano de GEO/AEO).
+ *
+ * Regra: procura um heading2/heading3 cujo texto normalizado seja
+ * "perguntas frequentes" ou "faq"; a partir daí, cada heading3 (ou parágrafo
+ * inteiramente em **bold**) é tratado como pergunta, e os parágrafos normais
+ * seguintes (até a próxima pergunta ou heading2) são concatenados como
+ * resposta. Para quando acha o próximo heading2 (fim da seção) ou o fim do
+ * conteúdo. Se não achar a seção, retorna [] — nunca inventa perguntas.
+ *
+ * O texto gerado é usado como está (sem reescrita) no JSON-LD FAQPage, para
+ * respeitar a exigência do Google de que o schema espelhe o conteúdo visível.
+ */
+export type FaqPair = { question: string; answer: string };
+
+function normalizeHeadingText(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove acentos
+    .trim()
+    .toLowerCase();
+}
+
+function isFaqSectionHeading(node: RTNode): boolean {
+  if (node.type !== "heading2" && node.type !== "heading3") return false;
+  const text = normalizeHeadingText(node.text ?? "");
+  return text === "perguntas frequentes" || text === "faq";
+}
+
+function isFullyBoldParagraph(node: RTParagraphNode): boolean {
+  const text = node.text ?? "";
+  if (!text.trim()) return false;
+  return node.spans.some(
+    (span) => span.type === "strong" && span.start === 0 && span.end === text.length,
+  );
+}
+
+/** Narrowing helper: só os slices `rich_text` de um artigo. */
+function richTextSlices(
+  slices: Content.ArticleDocument["data"]["slices"],
+): Content.RichTextSlice[] {
+  return slices.filter(
+    (s) => s.slice_type === "rich_text",
+  ) as Content.RichTextSlice[];
+}
+
+export function extractFaqPairs(
+  slices: Content.ArticleDocument["data"]["slices"],
+): FaqPair[] {
+  const nodes: RTNode[] = richTextSlices(slices).flatMap(
+    (s) => s.primary.content as RTNode[],
+  );
+
+  const startIdx = nodes.findIndex(isFaqSectionHeading);
+  if (startIdx === -1) return [];
+
+  const pairs: FaqPair[] = [];
+  let currentQuestion: string | null = null;
+  let answerParts: string[] = [];
+
+  const flush = () => {
+    const question = currentQuestion?.trim();
+    const answer = answerParts.join(" ").trim();
+    if (question && answer) pairs.push({ question, answer });
+    currentQuestion = null;
+    answerParts = [];
+  };
+
+  for (let i = startIdx + 1; i < nodes.length; i++) {
+    const node = nodes[i];
+
+    if (node.type === "heading2") {
+      // próxima seção do artigo: fim do FAQ.
+      flush();
+      break;
+    }
+
+    const isQuestionNode =
+      node.type === "heading3" ||
+      (node.type === "paragraph" && isFullyBoldParagraph(node));
+
+    if (isQuestionNode) {
+      flush();
+      currentQuestion = node.text ?? "";
+      continue;
+    }
+
+    if (node.type === "paragraph" && currentQuestion) {
+      const text = (node.text ?? "").trim();
+      if (text) answerParts.push(text);
+    }
+  }
+  flush();
+
+  return pairs;
 }

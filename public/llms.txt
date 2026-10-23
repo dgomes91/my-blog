@@ -7,10 +7,28 @@
 
 ## Seções
 
+- [Home (pt-br)](https://danilogomes.com.br/): capa com destaques, últimas notícias e reviews de GTA 6.
+- [Home (en-us)](https://danilogomes.com.br/en-us/): English landing page with the latest GTA 6 news and reviews.
 - [Notícias](https://danilogomes.com.br/noticias): últimas notícias e cobertura de trailers de GTA 6
 - [Reviews](https://danilogomes.com.br/reviews): análises com nota e veredito
 - [Listas TOP](https://danilogomes.com.br/top-lista): rankings, tier lists e seleções
 - [Sobre](https://danilogomes.com.br/about): quem edita o site e a política editorial
+- [About (en-us)](https://danilogomes.com.br/en-us/about): who writes the site and the editorial policy, in English.
+
+## Artigos (exemplos — lista não exaustiva)
+
+> NOTA: o site publica artigos continuamente via Prismic CMS. Esta lista é
+> apenas uma amostra manual para dar contexto a crawlers/LLMs; ela NÃO é
+> atualizada automaticamente. Para uma listagem completa e sempre atual,
+> implementar depois um script (ex: `scripts/generate-llms-txt.ts`) que
+> consulta a Content API do Prismic (`document.type == "article"`) e
+> reescreve este arquivo em build/deploy — ainda não feito nesta tarefa.
+
+- [GTA 6: tudo que já sabemos sobre Leonida e a nova Vice City](https://danilogomes.com.br/article/gta-6-leonida-vice-city): o que foi revelado até agora sobre o mapa e a cidade de Leonida.
+- [Jason e Lucia: quem são os protagonistas de GTA 6](https://danilogomes.com.br/article/gta-6-jason-e-lucia): perfil dos dois protagonistas confirmados pela Rockstar.
+- [GTA 6: Mapa Gigante, Furacões e tudo que a Rockstar Revelou pra Game Informer](https://danilogomes.com.br/article/gta-6-tera-furacoes-e-zoologicos-em-leonida): resumo da entrevista da Rockstar à revista Game Informer.
+- [8 coisas que a comunidade mais quer em GTA 6](https://danilogomes.com.br/article/gta-6-pedidos-da-comunidade): levantamento dos pedidos mais recorrentes dos fãs.
+- [Edição de colecionador de GTA VI: vale a pena?](https://danilogomes.com.br/article/o-que-vem-dentro-da-caixa): análise do conteúdo da collector's edition.
 
 ## Dados estruturados
 

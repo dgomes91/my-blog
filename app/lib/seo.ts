@@ -185,6 +185,10 @@ export const organizationLd: Json = {
   name: SITE_NAME,
   url: SITE_URL,
   logo: { "@type": "ImageObject", url: PUBLISHER_LOGO, width: 192, height: 192 },
+  // Perfis sociais confirmados do projeto (ajuda Google/LLMs a conectar a
+  // entidade "Danilo Gomes" aos seus canais). Adicione X/Instagram/TikTok
+  // aqui SÓ quando essas contas existirem de fato — não inventar URLs.
+  sameAs: ["https://www.youtube.com/@eujogogta6"],
 };
 
 export function websiteLd(sameAs: string[] = [], lang: Locale = DEFAULT_LOCALE): Json {
@@ -240,6 +244,12 @@ export function newsArticleLd(a: {
   dateModified: string;
   authorName: string;
   authorUrl?: string;
+  /**
+   * Perfil social do autor (ex: página /about, YouTube, X...) — só preencher
+   * quando houver uma URL real vinda do Prismic (campo `social_links` do
+   * documento `author`); nunca inventar.
+   */
+  authorSameAs?: string[];
   section: string;
   keywords?: string[];
   isReview?: boolean;
@@ -263,6 +273,7 @@ export function newsArticleLd(a: {
       "@type": "Person",
       name: a.authorName,
       ...(a.authorUrl ? { url: a.authorUrl } : {}),
+      ...(a.authorSameAs && a.authorSameAs.length ? { sameAs: a.authorSameAs } : {}),
     },
     publisher: { "@id": `${SITE_URL}/#organization` },
     isAccessibleForFree: true,
@@ -277,6 +288,30 @@ export function newsArticleLd(a: {
           },
         }
       : {}),
+  };
+}
+
+/**
+ * JSON-LD `FAQPage` derivado do conteúdo VISÍVEL de uma seção "Perguntas
+ * frequentes" (ver `extractFaqPairs` em app/lib/article-adapter.ts). Não
+ * inventa perguntas: se não houver pares, retorna `null` e o chamador não
+ * deve incluir o node no `@graph`. O texto deve espelhar exatamente o que
+ * está na página — requisito do Google para rich results de FAQ.
+ */
+export function faqPageLd(
+  pairs: { question: string; answer: string }[],
+  path: string,
+): Json | null {
+  if (!pairs.length) return null;
+  const url = absoluteUrl(path);
+  return {
+    "@type": "FAQPage",
+    "@id": `${url}#faq`,
+    mainEntity: pairs.map((p) => ({
+      "@type": "Question",
+      name: p.question,
+      acceptedAnswer: { "@type": "Answer", text: p.answer },
+    })),
   };
 }
 
