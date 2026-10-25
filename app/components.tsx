@@ -1,6 +1,6 @@
 'use client'
 import Image from "next/image";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { Search, Menu, X, ChevronRight, Clock, Eye, MessageSquare, TrendingUp } from "lucide-react";
@@ -18,6 +18,72 @@ import {
 } from "./lib/i18n";
 
 type NewsletterState = { status: "idle" | "success" | "error"; message?: string };
+
+/** Lançamento oficial de GTA 6: 19/11/2026, meia-noite no horário de Brasília. */
+const GTA6_LAUNCH_ISO = "2026-11-19T00:00:00-03:00";
+
+function useCountdown(targetIso: string) {
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffectOnce(() => {
+    setMounted(true);
+    const target = new Date(targetIso).getTime();
+    const tick = () => setRemaining(Math.max(0, target - Date.now()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  });
+  if (!mounted || remaining === null) return null;
+  const totalSeconds = Math.floor(remaining / 1000);
+  return {
+    days: Math.floor(totalSeconds / 86400),
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
+  };
+}
+
+/** `useEffect` com array de deps vazio, mas nomeado pra ficar claro que é "roda 1x no mount". */
+function useEffectOnce(effect: () => void | (() => void)) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(effect, []);
+}
+
+/** Barra de contagem regressiva pro lançamento — usada no Header, site inteiro. */
+export function LaunchCountdown({ className = "" }: { className?: string }) {
+  const lang = useLocale();
+  const ui = t(lang);
+  const cd = useCountdown(GTA6_LAUNCH_ISO);
+
+  if (cd === null) {
+    // placeholder estável no server/primeiro paint, pra não gerar layout shift
+    return <span className={`invisible ${className}`}>00d 00h 00m 00s</span>;
+  }
+
+  if (cd.days === 0 && cd.hours === 0 && cd.minutes === 0 && cd.seconds === 0) {
+    return (
+      <span className={`font-bold text-primary ${className}`}>{ui.countdownLaunched}</span>
+    );
+  }
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return (
+    <Link
+      href={withLocale(lang, lang === "pt-br" ? "/article/gta-6-contagem-regressiva" : "/article/gta-6-countdown")}
+      className={`flex items-center gap-1.5 hover:text-primary transition-colors ${className}`}
+    >
+      <span className="hidden sm:inline text-muted-foreground">{ui.countdownLabel}</span>
+      <span className="font-bold tabular-nums text-primary">
+        {cd.days}
+        {ui.countdownDays} {pad(cd.hours)}
+        {ui.countdownHours} {pad(cd.minutes)}
+        {ui.countdownMinutes} {pad(cd.seconds)}
+        {ui.countdownSeconds}
+      </span>
+    </Link>
+  );
+}
 
 /** Deduz o locale atual a partir da URL — todo componente aqui é client. */
 function useLocale(): Locale {
@@ -496,6 +562,7 @@ export function Header({
     <header className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="bg-[#0a0a0d] border-b border-border px-4 md:px-8 py-1.5 flex items-center justify-between text-xs text-muted-foreground" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
         <span id='data-atual'>{dataFormatada}</span>
+        <LaunchCountdown />
       </div>
 
       <div className="px-4 md:px-8 h-14 flex items-center gap-6">

@@ -144,6 +144,12 @@ export const UI = {
     errorRetry: "Tentar novamente",
     errorHome: "Ir para o início",
     errorDigestLabel: "Código de referência",
+    countdownLabel: "Lançamento de GTA 6 em",
+    countdownDays: "d",
+    countdownHours: "h",
+    countdownMinutes: "m",
+    countdownSeconds: "s",
+    countdownLaunched: "GTA 6 já chegou! 🎮",
   },
   "en-us": {
     navHome: "Home",
@@ -231,6 +237,12 @@ export const UI = {
     errorRetry: "Try again",
     errorHome: "Go home",
     errorDigestLabel: "Reference code",
+    countdownLabel: "GTA 6 launches in",
+    countdownDays: "d",
+    countdownHours: "h",
+    countdownMinutes: "m",
+    countdownSeconds: "s",
+    countdownLaunched: "GTA 6 is out now! 🎮",
   },
 } as const satisfies Record<Locale, Record<string, string>>;
 
