@@ -1,0 +1,6 @@
+{
+  "_comment": "Cache of known Prismic asset IDs reused across Job C/countdown runs. Recovered 02/11/2026 via asset-api listing after this file was found missing (scratch-pruned, never committed). Keep this file committed to the repo (not scratch) so it survives across sessions.",
+  "_countdown_asset_id_cache": "IMOcoySTKM2EEqYg",
+  "_countdown_asset_filename": "cover_gta_6_contagem_regressiva_para_o_lançame.png",
+  "_countdown_asset_recovered_on": "2026-11-02"
+}
