@@ -1,6 +1,7 @@
 {
-  "_comment": "Cache of known Prismic asset IDs reused across Job C/countdown runs. Recovered 02/11/2026 via asset-api listing after this file was found missing (scratch-pruned, never committed). Keep this file committed to the repo (not scratch) so it survives across sessions.",
-  "_countdown_asset_id_cache": "IMOcoySTKM2EEqYg",
-  "_countdown_asset_filename": "cover_gta_6_contagem_regressiva_para_o_lançame.png",
-  "_countdown_asset_recovered_on": "2026-11-02"
+  "_comment": "Cache of known Prismic asset IDs reused across Job C/countdown runs. The previous cached id (IMOcoySTKM2EEqYg, recovered 02/11/2026) was deleted from the Media Library again by 04/11/2026 (confirmed: 400 'Assets not found' on PUT, and a full asset-api listing across all pages found zero filenames matching 'contagem'/'countdown'/'regressiv'). The dedicated scripts/choose_cover.py and scripts/asset_upload.py referenced by the skill do NOT exist in this repo (never committed) — cover generation/reuse for the countdown had to be improvised. As a stopgap on 04/11/2026, the countdown doc's cover_image/seo_image/meta_image were set to the SAME asset already used by the 'gta-6-pre-download-antecipado-10-novembro' article (Yw0V54ozSWBSiccO) just so the PUT would validate — this is NOT a countdown-branded image. Danilo should upload a real countdown-branded cover and this cache should be updated once choose_cover.py/asset_upload.py are actually written and committed.",
+  "_countdown_asset_id_cache": "Yw0V54ozSWBSiccO",
+  "_countdown_asset_filename": "gta6-preload-10nov.jpg",
+  "_countdown_asset_is_placeholder": true,
+  "_countdown_asset_recovered_on": "2026-11-04"
 }
