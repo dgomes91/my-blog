@@ -70,7 +70,7 @@ export function LaunchCountdown({ className = "" }: { className?: string }) {
 
   return (
     <Link
-      href={withLocale(lang, lang === "pt-br" ? "/article/gta-6-contagem-regressiva" : "/article/gta-6-countdown")}
+      href={lang === "pt-br" ? "/contagem-regressiva" : "/en-us/countdown"}
       className={`flex items-center gap-1.5 hover:text-primary transition-colors ${className}`}
     >
       <span className="hidden sm:inline text-muted-foreground">{ui.countdownLabel}</span>
@@ -82,6 +82,69 @@ export function LaunchCountdown({ className = "" }: { className?: string }) {
         {ui.countdownSeconds}
       </span>
     </Link>
+  );
+}
+
+/**
+ * Contador regressivo grande e centralizado, usado na página fixa de
+ * contagem regressiva (`/contagem-regressiva` / `/en-us/countdown`).
+ * Reaproveita o mesmo `useCountdown`/`GTA6_LAUNCH_ISO` da barra do Header,
+ * só que em blocos grandes (dias/horas/min/seg) em vez de uma linha compacta.
+ */
+export function BigCountdown({ className = "" }: { className?: string }) {
+  const lang = useLocale();
+  const ui = t(lang);
+  const cd = useCountdown(GTA6_LAUNCH_ISO);
+
+  if (cd === null) {
+    // placeholder estável no server/primeiro paint, pra não gerar layout shift
+    return (
+      <div className={`invisible grid grid-cols-4 gap-3 sm:gap-6 ${className}`}>
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-24 sm:h-32" />
+        ))}
+      </div>
+    );
+  }
+
+  if (cd.days === 0 && cd.hours === 0 && cd.minutes === 0 && cd.seconds === 0) {
+    return (
+      <OswaldText as="p" className={`text-3xl sm:text-5xl font-bold text-primary text-center ${className}`}>
+        {ui.countdownLaunched}
+      </OswaldText>
+    );
+  }
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const units: { value: string; label: string }[] = [
+    { value: cd.days.toString(), label: ui.countdownUnitDays },
+    { value: pad(cd.hours), label: ui.countdownUnitHours },
+    { value: pad(cd.minutes), label: ui.countdownUnitMinutes },
+    { value: pad(cd.seconds), label: ui.countdownUnitSeconds },
+  ];
+
+  return (
+    <div className={`grid grid-cols-4 gap-3 sm:gap-6 ${className}`}>
+      {units.map((u) => (
+        <div
+          key={u.label}
+          className="flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm border border-white/15 px-2 py-4 sm:py-6"
+        >
+          <OswaldText
+            as="span"
+            className="text-4xl sm:text-6xl md:text-7xl font-bold text-white tabular-nums leading-none"
+          >
+            {u.value}
+          </OswaldText>
+          <span
+            className="mt-2 text-[10px] sm:text-xs tracking-[0.2em] text-white/70 uppercase"
+            style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+          >
+            {u.label}
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }
 

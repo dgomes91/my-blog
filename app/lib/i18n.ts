@@ -150,6 +150,15 @@ export const UI = {
     countdownMinutes: "m",
     countdownSeconds: "s",
     countdownLaunched: "GTA 6 já chegou! 🎮",
+    countdownUnitDays: "Dias",
+    countdownUnitHours: "Horas",
+    countdownUnitMinutes: "Minutos",
+    countdownUnitSeconds: "Segundos",
+    countdownPageEyebrow: "CONTAGEM REGRESSIVA",
+    countdownPageTitle: "Faltam só",
+    countdownPageSubtitle:
+      "Grand Theft Auto VI chega em 19 de novembro de 2026. Acompanhe, em tempo real, quanto tempo falta até o lançamento.",
+    countdownPageLatestHeading: "Últimos Artigos do Blog",
   },
   "en-us": {
     navHome: "Home",
@@ -243,6 +252,15 @@ export const UI = {
     countdownMinutes: "m",
     countdownSeconds: "s",
     countdownLaunched: "GTA 6 is out now! 🎮",
+    countdownUnitDays: "Days",
+    countdownUnitHours: "Hours",
+    countdownUnitMinutes: "Minutes",
+    countdownUnitSeconds: "Seconds",
+    countdownPageEyebrow: "COUNTDOWN",
+    countdownPageTitle: "Only",
+    countdownPageSubtitle:
+      "Grand Theft Auto VI launches on November 19, 2026. Follow the live countdown to release.",
+    countdownPageLatestHeading: "Latest Blog Articles",
   },
 } as const satisfies Record<Locale, Record<string, string>>;
 
