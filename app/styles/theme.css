@@ -179,3 +179,44 @@
     line-height: 1.5;
   }
 }
+
+/* ─── Contagem regressiva de GTA 6 ───────────────────────────────────────────
+ * Paleta do pôr-do-sol de Vice City (amarelo → laranja → rosa), usada só nos
+ * dígitos do contador e no céu da página /contagem-regressiva. */
+.countdown-digit {
+  background-image: linear-gradient(180deg, #ffe09a 6%, #ffa04d 40%, #ff4a7d 76%, #ee2a86 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes countdown-tick {
+  from {
+    opacity: 0.25;
+    transform: translateY(0.07em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .countdown-digit-tick {
+    animation: countdown-tick 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
+/* Céu: noite violeta no topo, brilho do sol já abaixo do horizonte na base. */
+.countdown-sky {
+  background-color: #0b0714;
+  background-image:
+    radial-gradient(ellipse 70% 42% at 50% 100%, rgba(255, 138, 66, 0.7) 0%, rgba(238, 42, 134, 0.4) 36%, rgba(96, 31, 122, 0.18) 68%, transparent 100%),
+    linear-gradient(180deg, #0b0714 0%, #150a26 55%, #2a0d33 100%);
+}
+
+/* Mesma luz, em faixa (banner da Home): o brilho vem da direita, atrás dos dígitos. */
+.countdown-sky-strip {
+  background-color: #0b0714;
+  background-image: radial-gradient(ellipse 45% 160% at 100% 50%, rgba(238, 42, 134, 0.3) 0%, rgba(96, 31, 122, 0.14) 55%, transparent 100%);
+}

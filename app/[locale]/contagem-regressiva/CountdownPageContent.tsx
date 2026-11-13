@@ -64,44 +64,34 @@ export default async function CountdownPageContent({
     <main>
       <JsonLd json={jsonLd} />
 
-      {/* Hero com fundo nas cores de GTA 6 (rosa/laranja de pôr-do-sol de Vice City
-          sobre preto) + o contador bem grande, centralizado horizontalmente. */}
-      <section
-        className="relative overflow-hidden flex flex-col items-center justify-center text-center px-4 py-20 md:py-28"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 50% 0%, rgba(232,25,44,0.35), transparent 60%), linear-gradient(135deg, #1a0a12 0%, #1a0022 35%, #06060a 70%, #000000 100%)",
-        }}
-      >
-        <div
-          className="absolute inset-0 opacity-20 mix-blend-screen pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(120deg, #ff3cac 0%, #e8192c 35%, #784ba0 65%, #2b86c5 100%)",
-          }}
-        />
+      {/* Céu de Vice City (noite violeta + brilho do pôr-do-sol no horizonte) e o
+          contador como frase: "Faltam" → dígitos → "para o lançamento…". */}
+      <section className="countdown-sky relative overflow-hidden border-b border-white/10 px-4 pt-14 pb-16 md:pt-20 md:pb-24 text-center">
+        <h1
+          className="mb-10 md:mb-14 text-[11px] sm:text-xs font-bold leading-none tracking-[0.3em] text-white/60 uppercase"
+          style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+        >
+          {ui.countdownPageHeading}
+        </h1>
 
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <span
-              className="text-xs font-bold tracking-[0.25em] text-white/80 uppercase"
-              style={{ fontFamily: "var(--font-jetbrains), monospace" }}
-            >
-              {ui.countdownPageEyebrow}
-            </span>
-          </div>
+        <OswaldText as="p" className="mb-3 md:mb-4 text-xl md:text-3xl font-medium leading-none tracking-wide text-white uppercase">
+          {ui.countdownLead}
+        </OswaldText>
 
-          <OswaldText as="h1" className="text-3xl md:text-5xl font-bold text-white leading-tight mb-4">
-            {ui.countdownPageTitle} <span className="text-primary">GTA 6</span>
-          </OswaldText>
+        <BigCountdown />
 
-          <p className="text-sm md:text-base text-gray-300 leading-relaxed max-w-2xl mx-auto mb-10">
-            {ui.countdownPageSubtitle}
-          </p>
+        <OswaldText as="p" className="mt-8 md:mt-10 text-xl md:text-3xl font-medium leading-tight tracking-wide text-white uppercase">
+          {ui.countdownTail}
+        </OswaldText>
 
-          <BigCountdown className="mx-auto max-w-2xl" />
-        </div>
+        <p
+          className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-x-4 gap-y-2 text-[11px] sm:text-xs tracking-[0.18em] text-white/70 uppercase"
+          style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+        >
+          <span>{ui.countdownMetaDate}</span>
+          <span aria-hidden="true" className="hidden sm:block h-3 w-px bg-white/30" />
+          <span>{ui.countdownMetaTime}</span>
+        </p>
       </section>
 
       {/* Últimos artigos do blog */}

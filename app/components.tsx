@@ -85,63 +85,87 @@ export function LaunchCountdown({ className = "" }: { className?: string }) {
   );
 }
 
+/** Um caractere do contador. Largura fixa (sem "pulo" de layout) e, como a
+ * `key` é o próprio caractere, o React remonta só o dígito que mudou — é isso
+ * que dispara a animação `countdown-tick` (ver app/styles/theme.css). */
+function CountdownDigits({ value, live }: { value: string; live: boolean }) {
+  return (
+    <span className="inline-flex" aria-hidden="true">
+      {value.split("").map((ch, i) => (
+        <span
+          key={live ? `${i}-${ch}` : i}
+          className={`inline-block w-[0.53em] text-center ${
+            live ? "countdown-digit countdown-digit-tick" : "text-white/15"
+          }`}
+        >
+          {ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 /**
  * Contador regressivo grande e centralizado, usado na página fixa de
  * contagem regressiva (`/contagem-regressiva` / `/en-us/countdown`).
- * Reaproveita o mesmo `useCountdown`/`GTA6_LAUNCH_ISO` da barra do Header,
- * só que em blocos grandes (dias/horas/min/seg) em vez de uma linha compacta.
+ * Reaproveita o mesmo `useCountdown`/`GTA6_LAUNCH_ISO` da barra do Header.
+ * Os dígitos SÃO a hierarquia da página: sem caixas, só tipografia em escala,
+ * com o degradê do pôr-do-sol de Vice City (amarelo → laranja → rosa).
  */
 export function BigCountdown({ className = "" }: { className?: string }) {
   const lang = useLocale();
   const ui = t(lang);
   const cd = useCountdown(GTA6_LAUNCH_ISO);
 
-  if (cd === null) {
-    // placeholder estável no server/primeiro paint, pra não gerar layout shift
+  if (cd !== null && cd.days === 0 && cd.hours === 0 && cd.minutes === 0 && cd.seconds === 0) {
     return (
-      <div className={`invisible grid grid-cols-4 gap-3 sm:gap-6 ${className}`}>
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-24 sm:h-32" />
-        ))}
-      </div>
-    );
-  }
-
-  if (cd.days === 0 && cd.hours === 0 && cd.minutes === 0 && cd.seconds === 0) {
-    return (
-      <OswaldText as="p" className={`text-3xl sm:text-5xl font-bold text-primary text-center ${className}`}>
+      <p
+        className={`countdown-digit text-center font-bold leading-none text-[clamp(2.5rem,9vw,7rem)] ${className}`}
+        style={{ fontFamily: "var(--font-oswald), sans-serif" }}
+      >
         {ui.countdownLaunched}
-      </OswaldText>
+      </p>
     );
   }
 
   const pad = (n: number) => n.toString().padStart(2, "0");
+  const live = cd !== null;
   const units: { value: string; label: string }[] = [
-    { value: cd.days.toString(), label: ui.countdownUnitDays },
-    { value: pad(cd.hours), label: ui.countdownUnitHours },
-    { value: pad(cd.minutes), label: ui.countdownUnitMinutes },
-    { value: pad(cd.seconds), label: ui.countdownUnitSeconds },
+    { value: live ? pad(cd.days) : "00", label: ui.countdownUnitDays },
+    { value: live ? pad(cd.hours) : "00", label: ui.countdownUnitHours },
+    { value: live ? pad(cd.minutes) : "00", label: ui.countdownUnitMinutes },
+    { value: live ? pad(cd.seconds) : "00", label: ui.countdownUnitSeconds },
   ];
+  const spoken = live
+    ? `${cd.days} ${ui.countdownUnitDays}, ${cd.hours} ${ui.countdownUnitHours}, ${cd.minutes} ${ui.countdownUnitMinutes}, ${cd.seconds} ${ui.countdownUnitSeconds}`
+    : undefined;
 
   return (
-    <div className={`grid grid-cols-4 gap-3 sm:gap-6 ${className}`}>
-      {units.map((u) => (
-        <div
-          key={u.label}
-          className="flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm border border-white/15 px-2 py-4 sm:py-6"
-        >
-          <OswaldText
-            as="span"
-            className="text-4xl sm:text-6xl md:text-7xl font-bold text-white tabular-nums leading-none"
-          >
-            {u.value}
-          </OswaldText>
-          <span
-            className="mt-2 text-[10px] sm:text-xs tracking-[0.2em] text-white/70 uppercase"
-            style={{ fontFamily: "var(--font-jetbrains), monospace" }}
-          >
-            {u.label}
-          </span>
+    <div
+      role="timer"
+      aria-label={spoken}
+      className={`flex items-start justify-center font-bold leading-[0.9] text-[clamp(3.25rem,15.5vw,12.5rem)] ${className}`}
+      style={{ fontFamily: "var(--font-oswald), sans-serif" }}
+    >
+      {units.map((u, i) => (
+        <div key={u.label} className="flex items-start">
+          {i > 0 && (
+            <span
+              aria-hidden="true"
+              className="flex h-[1.8em] items-center px-[0.16em] text-[0.5em] font-normal leading-none text-white/25"
+            >
+              :
+            </span>
+          )}
+          <div className="flex flex-col items-center">
+            <CountdownDigits value={u.value} live={live} />
+            <span
+              className="mt-[1.1em] text-[clamp(0.625rem,1.1vw,0.8125rem)] font-normal leading-none tracking-[0.16em] sm:tracking-[0.28em] text-white/60 uppercase"
+              style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+            >
+              {u.label}
+            </span>
+          </div>
         </div>
       ))}
     </div>
@@ -150,7 +174,7 @@ export function BigCountdown({ className = "" }: { className?: string }) {
 
 /**
  * Banner de lançamento — usado na Home, acima do conteúdo principal.
- * Versão compacta do `BigCountdown`, com CTA pra página fixa de contagem
+ * Versão em uma linha do contador, com link pra página fixa de contagem
  * regressiva completa (`/contagem-regressiva` / `/en-us/countdown`).
  */
 export function LaunchBanner({ className = "" }: { className?: string }) {
@@ -158,58 +182,40 @@ export function LaunchBanner({ className = "" }: { className?: string }) {
   const ui = t(lang);
   const cd = useCountdown(GTA6_LAUNCH_ISO);
   const href = lang === "pt-br" ? "/contagem-regressiva" : "/en-us/countdown";
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const launched =
+    cd !== null && cd.days === 0 && cd.hours === 0 && cd.minutes === 0 && cd.seconds === 0;
 
   return (
     <Link
       href={href}
-      className={`relative overflow-hidden flex items-center gap-4 sm:gap-6 px-4 md:px-8 py-4 group ${className}`}
-      style={{
-        backgroundImage:
-          "linear-gradient(90deg, #06060a 0%, #1a0022 45%, #1a0a12 75%, #06060a 100%)",
-      }}
+      className={`countdown-sky-strip group flex items-center gap-4 sm:gap-6 border-b border-border px-4 md:px-8 py-3.5 ${className}`}
     >
-      <div
-        className="absolute inset-0 opacity-25 mix-blend-screen pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(120deg, #ff3cac 0%, #e8192c 35%, #784ba0 65%, #2b86c5 100%)",
-        }}
-      />
-      <div className="relative z-10 flex-1 min-w-0">
-        <p
-          className="text-[10px] sm:text-xs tracking-[0.2em] text-white/70 uppercase mb-0.5"
-          style={{ fontFamily: "var(--font-jetbrains), monospace" }}
-        >
-          {ui.countdownPageEyebrow}
-        </p>
-        <OswaldText as="p" className="text-sm sm:text-lg font-bold text-white leading-snug truncate">
-          {ui.countdownPageTitle} <span className="text-primary">GTA 6</span>
-        </OswaldText>
-      </div>
+      <p
+        className="flex-1 min-w-0 truncate text-[11px] sm:text-xs tracking-[0.2em] text-white/75 uppercase"
+        style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+      >
+        {launched ? ui.countdownPageEyebrow : ui.countdownLabel}
+      </p>
 
-      {cd !== null && !(cd.days === 0 && cd.hours === 0 && cd.minutes === 0 && cd.seconds === 0) ? (
-        <div className="relative z-10 flex items-center gap-2 sm:gap-3 shrink-0">
-          {[
-            { value: cd.days.toString(), label: ui.countdownDays },
-            { value: cd.hours.toString().padStart(2, "0"), label: ui.countdownHours },
-            { value: cd.minutes.toString().padStart(2, "0"), label: ui.countdownMinutes },
-            { value: cd.seconds.toString().padStart(2, "0"), label: ui.countdownSeconds },
-          ].map((u, i) => (
-            <span key={i} className="flex items-baseline gap-0.5 tabular-nums">
-              <OswaldText as="span" className="text-xl sm:text-3xl font-bold text-white">
-                {u.value}
-              </OswaldText>
-              <span className="text-[10px] sm:text-xs text-white/60">{u.label}</span>
-            </span>
-          ))}
-        </div>
-      ) : cd !== null ? (
-        <OswaldText as="span" className="relative z-10 shrink-0 font-bold text-primary text-sm sm:text-lg">
+      {launched ? (
+        <OswaldText as="span" className="countdown-digit shrink-0 font-bold text-lg sm:text-2xl">
           {ui.countdownLaunched}
         </OswaldText>
-      ) : null}
+      ) : (
+        <span
+          className={`shrink-0 font-bold tabular-nums leading-none text-2xl sm:text-4xl ${
+            cd === null ? "invisible" : "countdown-digit"
+          }`}
+          style={{ fontFamily: "var(--font-oswald), sans-serif" }}
+        >
+          {cd === null
+            ? "00:00:00:00"
+            : `${pad(cd.days)}:${pad(cd.hours)}:${pad(cd.minutes)}:${pad(cd.seconds)}`}
+        </span>
+      )}
 
-      <ChevronRight className="relative z-10 w-5 h-5 text-white/60 shrink-0 group-hover:text-primary transition-colors" />
+      <ChevronRight className="w-5 h-5 text-white/50 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
     </Link>
   );
 }
