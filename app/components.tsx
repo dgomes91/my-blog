@@ -148,6 +148,72 @@ export function BigCountdown({ className = "" }: { className?: string }) {
   );
 }
 
+/**
+ * Banner de lançamento — usado na Home, acima do conteúdo principal.
+ * Versão compacta do `BigCountdown`, com CTA pra página fixa de contagem
+ * regressiva completa (`/contagem-regressiva` / `/en-us/countdown`).
+ */
+export function LaunchBanner({ className = "" }: { className?: string }) {
+  const lang = useLocale();
+  const ui = t(lang);
+  const cd = useCountdown(GTA6_LAUNCH_ISO);
+  const href = lang === "pt-br" ? "/contagem-regressiva" : "/en-us/countdown";
+
+  return (
+    <Link
+      href={href}
+      className={`relative overflow-hidden flex items-center gap-4 sm:gap-6 px-4 md:px-8 py-4 group ${className}`}
+      style={{
+        backgroundImage:
+          "linear-gradient(90deg, #06060a 0%, #1a0022 45%, #1a0a12 75%, #06060a 100%)",
+      }}
+    >
+      <div
+        className="absolute inset-0 opacity-25 mix-blend-screen pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(120deg, #ff3cac 0%, #e8192c 35%, #784ba0 65%, #2b86c5 100%)",
+        }}
+      />
+      <div className="relative z-10 flex-1 min-w-0">
+        <p
+          className="text-[10px] sm:text-xs tracking-[0.2em] text-white/70 uppercase mb-0.5"
+          style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+        >
+          {ui.countdownPageEyebrow}
+        </p>
+        <OswaldText as="p" className="text-sm sm:text-lg font-bold text-white leading-snug truncate">
+          {ui.countdownPageTitle} <span className="text-primary">GTA 6</span>
+        </OswaldText>
+      </div>
+
+      {cd !== null && !(cd.days === 0 && cd.hours === 0 && cd.minutes === 0 && cd.seconds === 0) ? (
+        <div className="relative z-10 flex items-center gap-2 sm:gap-3 shrink-0">
+          {[
+            { value: cd.days.toString(), label: ui.countdownDays },
+            { value: cd.hours.toString().padStart(2, "0"), label: ui.countdownHours },
+            { value: cd.minutes.toString().padStart(2, "0"), label: ui.countdownMinutes },
+            { value: cd.seconds.toString().padStart(2, "0"), label: ui.countdownSeconds },
+          ].map((u, i) => (
+            <span key={i} className="flex items-baseline gap-0.5 tabular-nums">
+              <OswaldText as="span" className="text-xl sm:text-3xl font-bold text-white">
+                {u.value}
+              </OswaldText>
+              <span className="text-[10px] sm:text-xs text-white/60">{u.label}</span>
+            </span>
+          ))}
+        </div>
+      ) : cd !== null ? (
+        <OswaldText as="span" className="relative z-10 shrink-0 font-bold text-primary text-sm sm:text-lg">
+          {ui.countdownLaunched}
+        </OswaldText>
+      ) : null}
+
+      <ChevronRight className="relative z-10 w-5 h-5 text-white/60 shrink-0 group-hover:text-primary transition-colors" />
+    </Link>
+  );
+}
+
 /** Deduz o locale atual a partir da URL — todo componente aqui é client. */
 function useLocale(): Locale {
   return localeFromPathname(usePathname());
@@ -176,6 +242,10 @@ function defaultFooterColumns(lang: Locale) {
         { label: ui.navNews, path: cat.news },
         { label: "Reviews", path: cat.reviews },
         { label: ui.topListsHeading, path: cat.topLists },
+        {
+          label: ui.countdownPageEyebrow,
+          path: lang === "pt-br" ? "/contagem-regressiva" : "/en-us/countdown",
+        },
       ],
     },
     {

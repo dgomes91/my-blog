@@ -14,6 +14,7 @@ import {
   OswaldText,
   TagBadge,
   ScoreBadge,
+  LaunchBanner,
 } from "@/app/components";
 import { adaptArticle, adaptArticles } from "@/app/lib/article-adapter";
 import {
@@ -148,6 +149,8 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
           </Link>
         </section>
       )}
+
+      <LaunchBanner />
 
       {allArticles.length === 0 && (
         <section className="max-w-7xl mx-auto px-4 md:px-8 py-20 text-center">
